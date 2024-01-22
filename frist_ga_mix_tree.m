@@ -216,6 +216,7 @@ end
 
 
 %%
+disp('test')
 disp('最佳解')
 disp(final_answer);
 disp('最佳分數')
