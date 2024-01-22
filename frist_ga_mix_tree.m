@@ -7,13 +7,7 @@ frist_data=load("PCA_test_data.txt","-ascii");
 bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
 
 % 區間
-interval_matrix=[10 40;3 8;1 5];
-% a1 = 5;         %下限
-% b1 = 40;        %上限
-% a2 = 1;         %下限
-% b2 = 5;        %上限
-% a3 = 1;         %下限
-% b3 = 5;        %上限
+interval_matrix=[10 40;3 8;1 5];%三種未知數的區間矩陣
 P = 3;         %未知數
 M = 8;         %染色體數
 N1= 15;        %單個基因數
