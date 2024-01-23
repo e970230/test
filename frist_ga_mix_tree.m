@@ -13,16 +13,16 @@ M = 8;         %染色體數
 N1= 15;        %單個基因數
 N = N1 * P;    %總基因數
 
-startValue = 1;                     %採樣區間起始數值
-endValue = size(frist_data,1);      %採樣區間結束數值
+startValue = 1;                     %採樣區間隨機起始數值
+endValue = size(frist_data,1);      %採樣區間隨機結束數值
 random_Value = randperm(endValue - startValue + 1) + startValue - 1;        %隨機選擇
-train_test_Value=size(frist_data,1)*0.8;                 %採樣訓練數的樣本數
-input_test_Value=size(frist_data,1);
+train_test_Value=size(frist_data,1)*0.8;                 %訓練數的樣本數，其中0.8代表這次選擇百分之80的數據進行訓練
+input_test_Value=size(frist_data,1);                     %採樣完後剩餘的數值作為測試數據，代表剩餘百分之20的數據做為測試資料
 
 
-input_data=[frist_data(random_Value(train_test_Value+1:input_test_Value),1:4)];
+input_data=[frist_data(random_Value(train_test_Value+1:input_test_Value),1:4)];         %以目前的條件第121~150項的隨機數
 input_data_answer=[frist_data(random_Value(train_test_Value+1:input_test_Value),5)];
-train_data=[frist_data(random_Value(1:train_test_Value),1:4)];
+train_data=[frist_data(random_Value(1:train_test_Value),1:4)];                          %以目前的條件第1~120項的隨機數
 train_data_y=[frist_data(random_Value(1:train_test_Value),5)];
 
 
@@ -43,8 +43,9 @@ for i = 1:M
 end
 
 % 正規化之後四捨五入
-for nV=1:P
-    normalization_Value(:,nV) = round(interval_matrix(nV,1) + true_m_data(:,nV) * ((interval_matrix(nV,2) - interval_matrix(nV,1)) / ((2^(N/P)) - 1)));
+for nV=1:P  %分別對三個未知數進行各自區間的正規化
+    normalization_Value(:,nV) = round(interval_matrix(nV,1) + true_m_data(:,nV) * ...
+        ((interval_matrix(nV,2) - interval_matrix(nV,1)) / ((2^(N/P)) - 1)));
 end
 
 
@@ -56,7 +57,7 @@ P2_data=initial_rand_data;
 %%
 
 
-for lterate=1:1000   %疊代次數
+for lterate=1:100   %疊代次數
 
 
     normalization_Value=normalization_Value_end;%10進制數值繼承
@@ -67,7 +68,8 @@ for lterate=1:1000   %疊代次數
         input_numTrees = normalization_Value(tr,1);%決策數的數量
         input_MinLeafSize=normalization_Value(tr,2);%葉節點最小樣本數
         input_MaxNumSplits=normalization_Value(tr,3);%每顆樹最大的分割次數
-        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification','MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+            'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
         predictions = predict(treeBaggerModel, input_data);
         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
         score(tr,1)=1/((sum(abs(answer_prediceions-input_data_answer)))+insurance_value);
@@ -161,7 +163,7 @@ for lterate=1:1000   %疊代次數
         end
         mutation_S=[randomColIndex,randomRowIndex];
     end
-    %轉為10進
+
     merged_chromosomes_end = reshape(P2_data', N1, P, M);
     merged_chromosomes_end = permute(merged_chromosomes_end, [2, 1, 3]);
     
@@ -172,11 +174,11 @@ for lterate=1:1000   %疊代次數
             normalization_Value_end(i, e) = bit2int(merged_chromosomes_end(e, :, i));
         end
     end
-    % 正規化
-%     normalization_Value_end = round(a1 + normalization_Value_end * ((b1 - a1) / ((2^(N/P)) - 1)));
+  
     % 正規化之後四捨五入
     for nV=1:P
-        normalization_Value_end(:,nV) = round(interval_matrix(nV,1) + normalization_Value_end(:,nV) * ((interval_matrix(nV,2) - interval_matrix(nV,1)) / ((2^(N/P)) - 1)));
+        normalization_Value_end(:,nV) = round(interval_matrix(nV,1) + normalization_Value_end(:,nV) * ...
+            ((interval_matrix(nV,2) - interval_matrix(nV,1)) / ((2^(N/P)) - 1)));
     end
 
 
@@ -186,7 +188,8 @@ for lterate=1:1000   %疊代次數
         input_numTrees = normalization_Value_end(tre,1);%決策數的數量
         input_MinLeafSize=normalization_Value_end(tre,2);%葉節點最小樣本數
         input_MaxNumSplits=normalization_Value_end(tre,3);%每顆樹最大的分割次數
-        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification','MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+            'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
         predictions = predict(treeBaggerModel, input_data);
         answer_prediceions=str2double(predictions);
         score_end(tre,1)=1/((sum(abs(answer_prediceions-input_data_answer)))+insurance_value);
@@ -197,12 +200,12 @@ for lterate=1:1000   %疊代次數
         best_answer=final_answer;
         best_score=score_answer;
     end
-    if score_answer>best_score
+    if score_answer>best_score  %當這次分數比歷代最優解還高時將此次答案儲存下來
         best_answer=final_answer;
         best_score=score_answer;
     end
 
-    if score_answer==1/insurance_value
+    if score_answer==1/insurance_value %分數達到理論最大值時跳出
         break
     end
 
@@ -210,7 +213,6 @@ end
 
 
 %%
-disp('test0122')
 disp('最佳解')
 disp(final_answer);
 disp('最佳分數')
