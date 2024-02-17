@@ -14,16 +14,30 @@ N1= 15;        %單個基因數
 N = N1 * P;    %總基因數
 
 startValue = 1;                     %採樣區間隨機起始數值
-endValue = size(frist_data,1);      %採樣區間隨機結束數值
+endValue = 50;                      %採樣區間隨機結束數值
 random_Value = randperm(endValue - startValue + 1) + startValue - 1;        %隨機選擇
-train_test_Value=size(frist_data,1)*0.8;                 %訓練數的樣本數，其中0.8代表這次選擇百分之80的數據進行訓練
-input_test_Value=size(frist_data,1);                     %採樣完後剩餘的數值作為測試數據，代表剩餘百分之20的數據做為測試資料
+train_test_Value=50*0.8;                 %訓練數的樣本數，其中0.8代表這次選擇百分之80的數據進行訓練
+input_test_Value=50;                     %採樣完後剩餘的數值作為測試數據，代表剩餘百分之20的數據做為測試資料
+Sample_type=3;                      %此鳶尾花種類為三種
+train_data=zeros(train_test_Value.*Sample_type,size(frist_data,2));
 
+% for id=1:Sample_type
+%     train_data_Site_storage(:,:,id)=[frist_data(random_Value(1:train_test_Value).*id,1:4)];
+%     train_data_Site_storage_answer(:,:,id)=[frist_data(random_Value(1:train_test_Value).*id,5)];
+%     input_data_Site_storage(:,:,id)=[frist_data(random_Value(train_test_Value+1:input_test_Value).*id,1:4)];
+%     input_data_Site_storage_answer(:,:,id)=[frist_data(random_Value(train_test_Value+1:input_test_Value).*id,5)];
+%     train_data(train_test_Value.*(id-1)+1:train_test_Value.*id,1:4)=train_data_Site_storage(:,:,id);
+%     train_data(train_test_Value.*(id-1)+1:train_test_Value.*id,5)=train_data_Site_storage_answer(:,:,id);
+% end
+train_data=[frist_data((1:40)+50*0,1:4);frist_data((1:40)+50*1,1:4);frist_data((1:40)+50*2,1:4)]; 
+train_data_y=[frist_data((1:40)+50*0,5);frist_data((1:40)+50*1,5);frist_data((1:40)+50*2,5)];
+input_data=[frist_data((41:50)+50*0,1:4);frist_data((41:50)+50*1,1:4);frist_data((41:50)+50*2,1:4)];
+input_data_answer=[frist_data((41:50)+50*0,5);frist_data((41:50)+50*1,5);frist_data((41:50)+50*2,5)];
 
-input_data=[frist_data(random_Value(train_test_Value+1:input_test_Value),1:4)];         %以目前的條件第121~150項的隨機數
-input_data_answer=[frist_data(random_Value(train_test_Value+1:input_test_Value),5)];
-train_data=[frist_data(random_Value(1:train_test_Value),1:4)];                          %以目前的條件第1~120項的隨機數
-train_data_y=[frist_data(random_Value(1:train_test_Value),5)];
+% input_data=[frist_data(random_Value(train_test_Value+1:input_test_Value),1:4)];         %以目前的條件第121~150項的隨機數
+% input_data_answer=[frist_data(random_Value(train_test_Value+1:input_test_Value),5)];
+% train_data=[frist_data(random_Value(1:train_test_Value),1:4)];                          %以目前的條件第1~120項的隨機數
+% train_data_y=[frist_data(random_Value(1:train_test_Value),5)];
 
 
 % 隨機產生一個初始族群(編碼
