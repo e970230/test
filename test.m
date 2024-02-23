@@ -8,5 +8,7 @@ cellMatrix = {'0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '2', '2', '2', '
 % 使用str2double将cell数组中的字符串转换为数值
 numericMatrix = str2double(cellMatrix);
 
+disp("github push test");
+
 % 显示结果
 disp(numericMatrix);
