@@ -9,6 +9,7 @@ cellMatrix = {'0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '2', '2', '2', '
 numericMatrix = str2double(cellMatrix);
 
 disp("github push test");
+disp("github pull test");
 
 % 显示结果
 disp(numericMatrix);
