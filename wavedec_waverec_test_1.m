@@ -58,7 +58,7 @@ y_wavelet = waverec(c,l,wname);   %小波重構
 
 
 %使用moving average降噪
-y_movavg = movavg( yn,"simple",1 );
+y_movavg = movavg( yn,10 );
 
 figure(3)
 plot(t,y,'color','b','linewidth',2)
