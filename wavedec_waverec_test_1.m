@@ -43,3 +43,29 @@ plot(cd1)
 title('Level 1 Detail Coefficients')
 
 
+%小波重構
+c_approx=c(1:l(1));   %近似項的係數
+c_details=c(l(1)+1:end);   %細節項的係數
+
+c_details0=c_details;
+
+threshold=1;   %篩選門檻, 0~1, 低於門檻的係數值(normalized)皆令其為0
+c_details0((abs(c_details)./max(abs(c_details)))<=threshold)=0;   %細節項中, abs(係數)<threshold的直接令其為0
+                                         %此作法即省略掉不重要的細節處, 以達降噪目的
+
+c=[c_approx,c_details0];   %處理完畢後的係數項
+y_wavelet = waverec(c,l,wname);   %小波重構
+
+
+%使用moving average降噪
+y_movavg = movavg( yn,"simple",1 );
+
+figure(3)
+plot(t,y,'color','b','linewidth',2)
+hold on
+plot(t,yn,'color',[126/255,126/255,126/255],'linestyle','-.')
+plot(t,y_wavelet,'color','r','linewidth',2)
+plot(t,y_movavg,'linewidth',2,'color',[237/255,177/255,32/255])
+hold off
+legend('no noise','with noise','filtered (wavelet)','filtered (moving average)')
+
