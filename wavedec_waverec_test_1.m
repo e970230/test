@@ -5,3 +5,41 @@ clear
 close all
 
 
+%----------------------------------------------------
+%創建模擬訊號
+fs=200;
+t=0:1/fs:2;
+
+y=linspace(0,10,length(t));
+
+noise=5*randn(1,length(y));   %量測雜訊 (zero-mean noise)
+yn=y+noise; %加上量測雜訊的模擬量測值Y
+
+
+figure(1)
+plot(t,y,t,yn,'r-.')
+
+%小波拆解
+wname='db4';
+[c,l] = wavedec(yn,3,wname);
+% c是小波分解的層數
+% 以這題為例:l是長3+2的向量，包含每個尺度的小波係數的長度，以及原始信號的長度
+approx = appcoef(c,l,wname);
+%appcoef是可以獲取小波分解的近似係數，以及低頻信息(訊號的大致走向
+[cd1,cd2,cd3] = detcoef(c,l,[1 2 3]);
+%detcoef可以獲得小波分解的近似係數，以及高頻信息(訊號的細節
+figure(2)
+subplot(4,1,1)
+plot(approx)
+title('Approximation Coefficients')
+subplot(4,1,2)
+plot(cd3)
+title('Level 3 Detail Coefficients')
+subplot(4,1,3)
+plot(cd2)
+title('Level 2 Detail Coefficients')
+subplot(4,1,4)
+plot(cd1)
+title('Level 1 Detail Coefficients')
+
+
