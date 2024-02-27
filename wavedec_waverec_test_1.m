@@ -20,7 +20,7 @@ figure(1)
 plot(t,y,t,yn,'r-.')
 
 %小波拆解
-wname='db4';
+wname='db7';
 [c,l] = wavedec(yn,3,wname);
 % c是小波分解的層數
 % 以這題為例:l是長3+2的向量，包含每個尺度的小波係數的長度，以及原始信號的長度
@@ -69,3 +69,29 @@ plot(t,y_movavg,'linewidth',2,'color',[237/255,177/255,32/255])
 hold off
 legend('no noise','with noise','filtered (wavelet)','filtered (moving average)')
 
+%比較不同篩選門檻 (不同小波降噪效力)的小波重構結果
+
+
+threshold=[1,0.3];   %篩選門檻, 0~1, 低於門檻的係數值(normalized)皆令其為0
+
+c_all=[];
+y_wavelet_all=[];
+
+
+for q=1:length(threshold)
+    
+    c_details_p=c_details;
+    c_details_p((abs(c_details)./max(abs(c_details)))<threshold(q))=0;
+    c_all=[c_all;[c_approx,c_details_p]];   %處理完畢後的係數項
+    y_wavelet_all = [y_wavelet_all;waverec(c_all(q,:),l,wname)];   %小波重構
+end
+
+
+figure(4)
+plot(t,y,'color','b','linewidth',2)
+hold on
+plot(t,yn,'color','k','linestyle','-.')
+plot(t,y_wavelet_all(2,:),'color','r','linewidth',1)
+plot(t,y_wavelet_all(1,:),'linewidth',2,'color',[237/255,177/255,32/255])
+hold off
+legend('no noise','with noise','threshold=0.2','threshold=1')

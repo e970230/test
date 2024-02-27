@@ -7,7 +7,7 @@ frist_data=load("PCA_test_data.txt","-ascii");
 bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
 
 % 區間
-interval_matrix=[10 40;3 8;1 5];%三種未知數的區間矩陣
+interval_matrix=[10 30;3 8;1 5];%三種未知數的區間矩陣
 P = 3;         %未知數
 M = 8;         %染色體數
 N1= 20;        %單個基因數
@@ -66,12 +66,12 @@ end
 insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
 normalization_Value_end=normalization_Value;
 P2_data=initial_rand_data;
-
+lterate=50; %疊帶次數
 
 %%
 
 
-for lterate=1:100   %疊代次數
+for nol=1:lterate   %疊代次數
 
 
     normalization_Value=normalization_Value_end;%10進制數值繼承
@@ -158,7 +158,7 @@ for lterate=1:100   %疊代次數
     end
     
     %突變
-    mutation_rate = 0.3; % 調整突變率
+    mutation_rate = 0.4; % 調整突變率
     mutation_Value = round(M * N * mutation_rate);
     mutation_S=zeros(1,2);
     P2_data=P_data;
@@ -210,7 +210,7 @@ for lterate=1:100   %疊代次數
     end
     [score_answer,score_answer_index]=max(score_end);
     final_answer=normalization_Value_end(score_answer_index,:);
-    if lterate==1               %第一次疊代將歷代最優解存起來
+    if nol==1               %第一次疊代將歷代最優解存起來
         best_answer=final_answer;
         best_score=score_answer;
     end
@@ -218,17 +218,20 @@ for lterate=1:100   %疊代次數
         best_answer=final_answer;
         best_score=score_answer;
     end
-
-    if score_answer==1/insurance_value %分數達到理論最大值時跳出
-        break
-    end
+    data_answer(nol,:)=final_answer;
+    % if score_answer==1/insurance_value %分數達到理論最大值時跳出
+    %     break
+    % end
 
 end
-
+%%
+true_answer=mode(data_answer);
+true_answer_mean=mean(data_answer);
 
 %%
 disp('最佳解')
-disp(final_answer);
-disp('最佳分數')
-disp(best_score)
+disp(true_answer);
+disp(true_answer_mean);
+% disp('最佳分數')
+% disp(best_score)
 % view(treeBaggerModel.Trees{1},Mode="graph")
