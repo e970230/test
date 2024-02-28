@@ -66,10 +66,9 @@ end
 insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
 normalization_Value_end=normalization_Value;
 P2_data=initial_rand_data;
-lterate=50; %疊帶次數
+lterate=100; %疊帶次數
 
 %%
-
 
 for nol=1:lterate   %疊代次數
 
