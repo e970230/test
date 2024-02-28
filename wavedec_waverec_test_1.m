@@ -4,7 +4,6 @@ clc
 clear
 close all
 
-
 %----------------------------------------------------
 %創建模擬訊號
 fs=200;
@@ -14,7 +13,6 @@ y=linspace(0,10,length(t));
 
 noise=5*randn(1,length(y));   %量測雜訊 (zero-mean noise)
 yn=y+noise; %加上量測雜訊的模擬量測值Y
-
 
 figure(1)
 plot(t,y,t,yn,'r-.')
