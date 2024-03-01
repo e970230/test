@@ -15,9 +15,7 @@ M = 8;         %染色體數
 N1= 20;        %單個基因數
 N = N1 * P;    %總基因數
 
-startValue = 1;                     %採樣區間隨機起始數值
-endValue = 50;                      %採樣區間隨機結束數值
-random_Value = randperm(endValue - startValue + 1) + startValue - 1;        %隨機選擇
+random_Value = randperm(50);         %隨機選擇
 train_test_Value=50*0.8;                 %訓練數的樣本數，其中0.8代表這次選擇百分之80的數據進行訓練
 input_test_Value=50;                     %採樣完後剩餘的數值作為測試數據，代表剩餘百分之20的數據做為測試資料
 Sample_type=3;                      %此鳶尾花種類為三種
@@ -68,7 +66,7 @@ end
 insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
 normalization_Value_end=normalization_Value;
 P2_data=initial_rand_data;
-lterate=400; %疊帶次數
+lterate=100; %疊帶次數
 
 %%
 
