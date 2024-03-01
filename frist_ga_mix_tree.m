@@ -6,6 +6,8 @@ close all
 frist_data=load("PCA_test_data.txt","-ascii");
 bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
 
+tic
+
 % 區間
 interval_matrix=[10 30;3 8;1 5];%三種未知數的區間矩陣
 P = 3;         %未知數
@@ -66,7 +68,7 @@ end
 insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
 normalization_Value_end=normalization_Value;
 P2_data=initial_rand_data;
-lterate=100; %疊帶次數
+lterate=400; %疊帶次數
 
 %%
 
@@ -223,14 +225,20 @@ for nol=1:lterate   %疊代次數
     % end
 
 end
-%%
-true_answer=mode(data_answer);
-true_answer_mean=mean(data_answer);
 
-%%
+answer_more=mode(data_answer);
+answer_mean=mean(data_answer);
+answer=round(answer_mean);
+
+
 disp('最佳解')
-disp(true_answer);
-disp(true_answer_mean);
+disp(answer);
+disp('單次疊代出現最多次解')
+disp(answer_more);
+disp('單次疊代運行平均解')
+disp(answer_mean);
+
+toc
 % disp('最佳分數')
 % disp(best_score)
 % view(treeBaggerModel.Trees{1},Mode="graph")
