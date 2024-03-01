@@ -92,4 +92,4 @@ plot(t,yn,'color','k','linestyle','-.')
 plot(t,y_wavelet_all(2,:),'color','r','linewidth',1)
 plot(t,y_wavelet_all(1,:),'linewidth',2,'color',[237/255,177/255,32/255])
 hold off
-legend('no noise','with noise','threshold=0.2','threshold=1')
+legend('no noise','with noise','threshold=0.3','threshold=1')
