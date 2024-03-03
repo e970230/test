@@ -25,7 +25,7 @@ input_data_answer=[rpm_120(sampled_data+1:end,1);rpm_680(sampled_data+1:end,1);r
 tic
 
 % 區間
-interval_matrix=[10 100;3 20;1 10];%三種未知數的區間矩陣
+interval_matrix=[1 10;2 5;1 5];%三種未知數的區間矩陣
 P = 3;         %未知數
 M = 8;         %染色體數
 N1= 20;        %單個基因數
@@ -90,8 +90,9 @@ for nol=1:lterate   %疊代次數
         predictions = predict(treeBaggerModel, input_data);
         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
         %分數計算區塊
-        score_temporary_storage(tr,1)=((sum(abs(answer_prediceions-input_data_answer))));
-        score(tr)=1/((length(find(score_temporary_storage)))+insurance_value);
+        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+        error_time(tr,:)=(length(find(score_temporary_storage)));
+        score(tr)=1./(error_time(tr,:)+insurance_value);
     
     end
     
@@ -211,8 +212,9 @@ for nol=1:lterate   %疊代次數
         predictions = predict(treeBaggerModel, input_data);
         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
         %分數計算區塊
-        score_temporary_storage_end(tr,1)=((sum(abs(answer_prediceions-input_data_answer))));
-        score_end(tr)=1/((length(find(score_temporary_storage_end)))+insurance_value);
+        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+        error_time(tr)=(length(find(score_temporary_storage)));
+        score_end(tr)=1./(error_time(tr)+insurance_value);
     
     end
     
