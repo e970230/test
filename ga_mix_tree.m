@@ -3,6 +3,8 @@ clear
 close all
 
 %% 初始設立條件
+
+%------資料集整理
 feature_dataset=load("feature_dataset_heavy.mat");
 first_data=feature_dataset.feature_dataset;
 bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
@@ -14,33 +16,51 @@ rpm_1400=first_data(find(first_data==1400),:);
 rpm_1500=first_data(find(first_data==1500),:);
 rpm_2500=first_data(find(first_data==2500),:);
 
+AA=[120 680 890 1100 1400 1500 2500];
+
+
+
+
+
+%各轉速隨機數
+
+rpm_120_rand=randperm(size(rpm_120,1));
+rpm_680_rand=randperm(size(rpm_680,1));
+rpm_890_rand=randperm(size(rpm_890,1));
+rpm_1100_rand=randperm(size(rpm_1100,1));
+rpm_1400_rand=randperm(size(rpm_1400,1));
+rpm_1500_rand=randperm(size(rpm_1500,1));
+rpm_2500_rand=randperm(size(rpm_2500,1));
+
+
+
+randomly_selected_samples=100;
 sampled_data=120;
 
-train_data=[rpm_120(1:sampled_data,2:end);rpm_680(1:sampled_data,2:end);rpm_890(1:sampled_data,2:end);rpm_1100(1:sampled_data,2:end);rpm_1400(1:sampled_data,2:end);rpm_1500(1:sampled_data,2:end);rpm_2500(1:sampled_data,2:end)];
-train_data_y=[rpm_120(1:sampled_data,1);rpm_680(1:sampled_data,1);rpm_890(1:sampled_data,1);rpm_1100(1:sampled_data,1);rpm_1400(1:sampled_data,1);rpm_1500(1:sampled_data,1);rpm_2500(1:sampled_data,1)];
-input_data=[rpm_120(sampled_data+1:end,2:end);rpm_680(sampled_data+1:end,2:end);rpm_890(sampled_data+1:end,2:end);rpm_1100(sampled_data+1:end,2:end);rpm_1400(sampled_data+1:end,2:end);rpm_1500(sampled_data+1:end,2:end);rpm_2500(sampled_data+1:end,2:end)];
-input_data_answer=[rpm_120(sampled_data+1:end,1);rpm_680(sampled_data+1:end,1);rpm_890(sampled_data+1:end,1);rpm_1100(sampled_data+1:end,1);rpm_1400(sampled_data+1:end,1);rpm_1500(sampled_data+1:end,1);rpm_2500(sampled_data+1:end,1)];
+
+
+train_data=[rpm_120(rpm_120_rand(1:randomly_selected_samples),2:end);rpm_680(rpm_680_rand(1:randomly_selected_samples),2:end);rpm_890(rpm_890_rand(1:randomly_selected_samples),2:end);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),2:end);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),2:end);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),2:end);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),2:end)];
+train_data_y=[rpm_120(rpm_120_rand(1:randomly_selected_samples),1);rpm_680(rpm_680_rand(1:randomly_selected_samples),1);rpm_890(rpm_890_rand(1:randomly_selected_samples),1);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),1);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),1);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),1);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),1)];
+input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),2:end);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),2:end);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),2:end);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),2:end);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),2:end);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),2:end)];
+input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
+
+
+
+
+%input_data=[rpm_120(sampled_data+1:end,2:end);rpm_680(sampled_data+1:end,2:end);rpm_890(sampled_data+1:end,2:end);rpm_1100(sampled_data+1:end,2:end);rpm_1400(sampled_data+1:end,2:end);rpm_1500(sampled_data+1:end,2:end);rpm_2500(sampled_data+1:end,2:end)];
+%input_data_answer=[rpm_120(sampled_data+1:end,1);rpm_680(sampled_data+1:end,1);rpm_890(sampled_data+1:end,1);rpm_1100(sampled_data+1:end,1);rpm_1400(sampled_data+1:end,1);rpm_1500(sampled_data+1:end,1);rpm_2500(sampled_data+1:end,1)];
 
 %%
 tic
 
 % 區間
-interval_matrix=[1 10;2 5;1 5];%三種未知數的區間矩陣
+interval_matrix=[1 10;2 10;1 10];%三種未知數的區間矩陣
 P = 3;         %未知數
 M = 8;         %染色體數
-N1= 20;        %單個基因數
+N1= 10;        %單個基因數
 N = N1 * P;    %總基因數
 
-% random_Value = randperm(50);             %隨機選擇
-% train_test_Value=50*0.8;                 %訓練數的樣本數，其中0.8代表這次選擇百分之80的數據進行訓練
-% input_test_Value=50;                     %採樣完後剩餘的數值作為測試數據，代表剩餘百分之20的數據做為測試資料
-% Sample_type=3;                           %此鳶尾花種類為三種
-% train_data=zeros(train_test_Value.*Sample_type,size(first_data,2));
 
-% train_data=[first_data((1:40)+50*0,1:4);first_data((1:40)+50*1,1:4);first_data((1:40)+50*2,1:4)]; 
-% train_data_y=[first_data((1:40)+50*0,5);first_data((1:40)+50*1,5);first_data((1:40)+50*2,5)];
-% input_data=[first_data((41:50)+50*0,1:4);first_data((41:50)+50*1,1:4);first_data((41:50)+50*2,1:4)];
-% input_data_answer=[first_data((41:50)+50*0,5);first_data((41:50)+50*1,5);first_data((41:50)+50*2,5)];
 
 %%
 
@@ -136,7 +156,7 @@ for nol=1:lterate   %疊代次數
     % 設定範圍和要生成的數量
     range_start = 1;
     range_end = N1;
-    interval_size = 3;
+    interval_size = 5;
     intervals = zeros(M, interval_size);
     for i = 1:M
         % 隨機選擇區間的開始位置
@@ -165,7 +185,7 @@ for nol=1:lterate   %疊代次數
     end
     
     %突變
-    mutation_rate = 0.3; % 調整突變率
+    mutation_rate = 0.2; % 調整突變率
     mutation_Value = round(M * N * mutation_rate);
     mutation_S=zeros(1,2);
     P2_data=P_data;
@@ -237,10 +257,42 @@ end
 answer_more=mode(data_answer);
 answer_mean=mean(data_answer);
 answer=round(answer_mean);
+%%
+%預測過大修正區
+test_final_answer=final_answer;
+input_numTrees = final_answer(1,1);%隨機森林裡決策樹的數量
+input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
+input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
+treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+    'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+predictions = predict(treeBaggerModel, input_data);
+answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
+%分數計算區塊
+score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+error_time=(length(find(score_temporary_storage)));
+score_end=1./(error_time+insurance_value);
+if score_end==1/insurance_value
+    while score_end==1/insurance_value
+        test_final_answer(1,1)=test_final_answer(1,1)-1;
+        input_numTrees = test_final_answer(1,1);%隨機森林裡決策樹的數量
+        input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
+        input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
+        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+            'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+        predictions = predict(treeBaggerModel, input_data);
+        answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
+        %分數計算區塊
+        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+        error_time=(length(find(score_temporary_storage)));
+        score_end=1./(error_time+insurance_value);
+    end
+    test_final_answer(1,1)=test_final_answer(1,1)+1;
+end
 
-
-disp('最佳解')
+disp('初解')
 disp(final_answer);
+disp('最佳解')
+disp(test_final_answer);
 % disp('單次疊代出現最多次解')
 % disp(answer_more);
 % disp('單次疊代運行平均解')
