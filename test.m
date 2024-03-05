@@ -39,7 +39,7 @@ rpm_2500_rand=randperm(size(rpm_2500,1));
 
 
 
-randomly_selected_samples=80;
+randomly_selected_samples=100;
 sampled_data=120;
 
 
@@ -50,16 +50,24 @@ input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680
 input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
 
 
-input_numTrees = 10;%森林中樹的數量
-input_MinLeafSize=10;%葉節點最小樣本數
-input_MaxNumSplits=10;%每顆樹最大的分割次數
-insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
+for tre=1:10
 
-treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
-        'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
-predictions = predict(treeBaggerModel, input_data);
-answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
 
-score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-error_time=(length(find(score_temporary_storage)));
-score=1/(error_time+insurance_value);
+    input_numTrees = 5;%森林中樹的數量
+    input_MinLeafSize=4;%葉節點最小樣本數
+    input_MaxNumSplits=4;%每顆樹最大的分割次數
+    insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
+    
+    treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+            'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+    predictions = predict(treeBaggerModel, input_data);
+    answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
+    score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+    error_time(tre)=(length(find(score_temporary_storage)));
+    
+    score(tre)=1/(error_time(tre)+insurance_value);
+
+
+
+end
+

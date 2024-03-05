@@ -54,7 +54,7 @@ input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_
 tic
 
 % 區間
-interval_matrix=[1 10;2 10;1 10];%三種未知數的區間矩陣
+interval_matrix=[1 10;2 5;1 5];%三種未知數的區間矩陣
 P = 3;         %未知數
 M = 8;         %染色體數
 N1= 10;        %單個基因數
@@ -185,7 +185,7 @@ for nol=1:lterate   %疊代次數
     end
     
     %突變
-    mutation_rate = 0.2; % 調整突變率
+    mutation_rate = 0.3; % 調整突變率
     mutation_Value = round(M * N * mutation_rate);
     mutation_S=zeros(1,2);
     P2_data=P_data;
@@ -250,49 +250,69 @@ for nol=1:lterate   %疊代次數
         best_score=score_answer;
     end
     data_answer(nol,:)=final_answer;
-    if score_answer==1/insurance_value %分數達到理論最大值時跳出
+%---------------------------------驗證區域    
+    treebagger_verifications=20;
+
+    for tre=1:treebagger_verifications
+        input_numTrees = final_answer(1,1);%森林中樹的數量
+        input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
+        input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
+        treeBaggerModel_verifications_mode = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+            'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+        predictions = predict(treeBaggerModel, input_data);
+        answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
+        
+        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+        error_time_verifications(tre)=(length(find(score_temporary_storage)));
+        
+    end
+    if length(find(error_time_verifications))<=1
         break
     end
+
+%     if score_answer==1/insurance_value %分數達到理論最大值時跳出
+%         break
+%     end
 end
 answer_more=mode(data_answer);
 answer_mean=mean(data_answer);
 answer=round(answer_mean);
 %%
 %預測過大修正區
-test_final_answer=final_answer;
-input_numTrees = final_answer(1,1);%隨機森林裡決策樹的數量
-input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
-input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
-treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
-    'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
-predictions = predict(treeBaggerModel, input_data);
-answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
-%分數計算區塊
-score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-error_time=(length(find(score_temporary_storage)));
-score_end=1./(error_time+insurance_value);
-if score_end==1/insurance_value
-    while score_end==1/insurance_value
-        test_final_answer(1,1)=test_final_answer(1,1)-1;
-        input_numTrees = test_final_answer(1,1);%隨機森林裡決策樹的數量
-        input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
-        input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
-        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
-            'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
-        predictions = predict(treeBaggerModel, input_data);
-        answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
-        %分數計算區塊
-        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-        error_time=(length(find(score_temporary_storage)));
-        score_end=1./(error_time+insurance_value);
-    end
-    test_final_answer(1,1)=test_final_answer(1,1)+1;
-end
+% test_final_answer=final_answer;
+% input_numTrees = final_answer(1,1);%隨機森林裡決策樹的數量
+% input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
+% input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
+% treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+%     'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+% predictions = predict(treeBaggerModel, input_data);
+% answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
+% %分數計算區塊
+% score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+% error_time=(length(find(score_temporary_storage)));
+% score_end=1./(error_time+insurance_value);
+% if score_end==1/insurance_value
+%     while score_end==1/insurance_value
+%         test_final_answer(1,1)=test_final_answer(1,1)-1;
+%         input_numTrees = test_final_answer(1,1);%隨機森林裡決策樹的數量
+%         input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
+%         input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
+%         treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+%             'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+%         predictions = predict(treeBaggerModel, input_data);
+%         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
+%         %分數計算區塊
+%         score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+%         error_time=(length(find(score_temporary_storage)));
+%         score_end=1./(error_time+insurance_value);
+%     end
+%     test_final_answer(1,1)=test_final_answer(1,1)+1;
+% end
 
 disp('初解')
 disp(final_answer);
-disp('最佳解')
-disp(test_final_answer);
+% disp('最佳解')
+% disp(test_final_answer);
 % disp('單次疊代出現最多次解')
 % disp(answer_more);
 % disp('單次疊代運行平均解')
