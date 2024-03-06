@@ -39,7 +39,7 @@ rpm_2500_rand=randperm(size(rpm_2500,1));
 
 
 
-randomly_selected_samples=100;
+randomly_selected_samples=140;
 sampled_data=120;
 
 
@@ -53,9 +53,9 @@ input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_
 for tre=1:10
 
 
-    input_numTrees = 5;%森林中樹的數量
-    input_MinLeafSize=4;%葉節點最小樣本數
-    input_MaxNumSplits=4;%每顆樹最大的分割次數
+    input_numTrees = 7;%森林中樹的數量
+    input_MinLeafSize=3;%葉節點最小樣本數
+    input_MaxNumSplits=3;%每顆樹最大的分割次數
     insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
     
     treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...

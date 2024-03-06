@@ -16,13 +16,8 @@ rpm_1400=first_data(find(first_data==1400),:);
 rpm_1500=first_data(find(first_data==1500),:);
 rpm_2500=first_data(find(first_data==2500),:);
 
-AA=[120 680 890 1100 1400 1500 2500];
-
-
-
-
-
-%各轉速隨機數
+%各轉速選擇時的隨機亂數
+%根據各自轉速的樣本數大小進行隨機亂數排列
 
 rpm_120_rand=randperm(size(rpm_120,1));
 rpm_680_rand=randperm(size(rpm_680,1));
@@ -32,37 +27,26 @@ rpm_1400_rand=randperm(size(rpm_1400,1));
 rpm_1500_rand=randperm(size(rpm_1500,1));
 rpm_2500_rand=randperm(size(rpm_2500,1));
 
+%選擇需要訓練的各資料樣本數
+randomly_selected_samples=140;
 
-
-randomly_selected_samples=100;
-sampled_data=120;
-
-
-
+%訓練資料集特徵
 train_data=[rpm_120(rpm_120_rand(1:randomly_selected_samples),2:end);rpm_680(rpm_680_rand(1:randomly_selected_samples),2:end);rpm_890(rpm_890_rand(1:randomly_selected_samples),2:end);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),2:end);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),2:end);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),2:end);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),2:end)];
+%訓練資料集特徵對應分類
 train_data_y=[rpm_120(rpm_120_rand(1:randomly_selected_samples),1);rpm_680(rpm_680_rand(1:randomly_selected_samples),1);rpm_890(rpm_890_rand(1:randomly_selected_samples),1);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),1);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),1);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),1);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),1)];
+%測試資料集
 input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),2:end);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),2:end);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),2:end);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),2:end);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),2:end);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),2:end)];
+%測試資料集解答
 input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
 
 
-
-
-%input_data=[rpm_120(sampled_data+1:end,2:end);rpm_680(sampled_data+1:end,2:end);rpm_890(sampled_data+1:end,2:end);rpm_1100(sampled_data+1:end,2:end);rpm_1400(sampled_data+1:end,2:end);rpm_1500(sampled_data+1:end,2:end);rpm_2500(sampled_data+1:end,2:end)];
-%input_data_answer=[rpm_120(sampled_data+1:end,1);rpm_680(sampled_data+1:end,1);rpm_890(sampled_data+1:end,1);rpm_1100(sampled_data+1:end,1);rpm_1400(sampled_data+1:end,1);rpm_1500(sampled_data+1:end,1);rpm_2500(sampled_data+1:end,1)];
-
-%%
-tic
-
-% 區間
-interval_matrix=[1 10;2 5;1 5];%三種未知數的區間矩陣
+interval_matrix=[1 10;1 10;1 10];%三種未知數的區間矩陣
 P = 3;         %未知數
-M = 8;         %染色體數
+M = 5;         %染色體數
 N1= 10;        %單個基因數
 N = N1 * P;    %總基因數
 
 
-
-%%
 
 % 隨機產生一個初始族群(編碼
 initial_rand_data = randi([0, 1], M, N);
@@ -156,7 +140,7 @@ for nol=1:lterate   %疊代次數
     % 設定範圍和要生成的數量
     range_start = 1;
     range_end = N1;
-    interval_size = 5;
+    interval_size = 3;
     intervals = zeros(M, interval_size);
     for i = 1:M
         % 隨機選擇區間的開始位置
@@ -251,7 +235,7 @@ for nol=1:lterate   %疊代次數
     end
     data_answer(nol,:)=final_answer;
 %---------------------------------驗證區域    
-    treebagger_verifications=20;
+    treebagger_verifications=20;        %驗證次數
 
     for tre=1:treebagger_verifications
         input_numTrees = final_answer(1,1);%森林中樹的數量
@@ -263,16 +247,17 @@ for nol=1:lterate   %疊代次數
         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
         
         score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
+        %驗證次數內每次運行預測答案錯誤次數
         error_time_verifications(tre)=(length(find(score_temporary_storage)));
         
     end
+
+    %跑完驗證後根據答案錯誤資料集必須達成只能有1次結果沒有精準預測否則無法跳出迴圈
     if length(find(error_time_verifications))<=1
         break
     end
 
-%     if score_answer==1/insurance_value %分數達到理論最大值時跳出
-%         break
-%     end
+
 end
 answer_more=mode(data_answer);
 answer_mean=mean(data_answer);
@@ -309,11 +294,13 @@ answer=round(answer_mean);
 %     test_final_answer(1,1)=test_final_answer(1,1)+1;
 % end
 
-disp('初解')
-disp(final_answer);
-% disp('最佳解')
-% disp(test_final_answer);
-% disp('單次疊代出現最多次解')
-% disp(answer_more);
-% disp('單次疊代運行平均解')
-% disp(answer_mean);
+disp('隨機森林裡決策樹的數量')
+disp(final_answer(1,1));
+disp('葉節點最小樣本數')
+disp(final_answer(1,2));
+disp('每顆樹最大的分割次數')
+disp(final_answer(1,3));
+disp('疊帶次數')
+disp(nol)
+disp('驗證解答錯誤次數')
+disp(error_time_verifications')
