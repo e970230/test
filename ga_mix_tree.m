@@ -40,7 +40,7 @@ input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680
 input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
 
 
-interval_matrix=[1 10;3 7;1 5];%三種未知數的區間矩陣
+interval_matrix=[4 10;3 7;1 5];%三種未知數的區間矩陣
 P = 3;         %未知數
 M = 5;         %染色體數
 N1= 10;        %單個基因數
@@ -251,7 +251,8 @@ for nol=1:lterate   %疊代次數
         error_time_verifications(tre)=(length(find(score_temporary_storage)));
         
     end
-
+    %將歷代驗證後的錯誤次數儲存下來
+    error_nol(nol)=length(find(error_time_verifications));
     %跑完驗證後根據答案錯誤資料集必須達成只能有1次結果沒有精準預測否則無法跳出迴圈
     if length(find(error_time_verifications))<=1
         break
@@ -302,5 +303,5 @@ disp('每顆樹最大的分割次數')
 disp(final_answer(1,3));
 disp('疊代次數')
 disp(nol)
-disp('驗證解答錯誤次數')
-disp(length(find(error_time_verifications)))
+disp('歷代驗證錯誤次數')
+disp(error_nol)
