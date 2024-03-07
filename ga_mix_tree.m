@@ -95,8 +95,8 @@ for nol=1:lterate   %疊代次數
         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
         %分數計算區塊
         score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-        error_time(tr,:)=(length(find(score_temporary_storage)));
-        score(tr)=1./(error_time(tr,:)+insurance_value);
+        correct_time(tr)=(length(find(score_temporary_storage==0)));
+        score(tr)=correct_time(tr)/size(input_data_answer,1);
     
     end
     
@@ -217,8 +217,8 @@ for nol=1:lterate   %疊代次數
         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
         %分數計算區塊
         score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-        error_time(tr)=(length(find(score_temporary_storage)));
-        score_end(tr)=1./(error_time(tr)+insurance_value);
+        correct_time(tr)=(length(find(score_temporary_storage==0)));
+        score_end(tr)=correct_time(tr)/size(input_data_answer,1);
     
     end
     

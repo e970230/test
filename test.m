@@ -63,12 +63,12 @@ for tre=1:20
     predictions = predict(treeBaggerModel, input_data);
     answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
     score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-    error_time(tre)=(length(find(score_temporary_storage)));
+    correct_time(tre)=(length(find(score_temporary_storage==0)));
     
-    score(tre)=1/(error_time(tre)+insurance_value);
+    score(tre)=correct_time(tre)/size(input_data_answer,1);
 
 
 
 end
 
-disp(length(find(error_time)))
+disp(length(find(correct_time)))
