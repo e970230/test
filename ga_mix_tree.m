@@ -40,7 +40,7 @@ input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680
 input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
 
 
-interval_matrix=[1 10;1 10;1 10];%三種未知數的區間矩陣
+interval_matrix=[1 10;3 7;1 5];%三種未知數的區間矩陣
 P = 3;         %未知數
 M = 5;         %染色體數
 N1= 10;        %單個基因數
@@ -235,7 +235,7 @@ for nol=1:lterate   %疊代次數
     end
     data_answer(nol,:)=final_answer;
 %---------------------------------驗證區域    
-    treebagger_verifications=20;        %驗證次數
+    treebagger_verifications=40;        %驗證次數
 
     for tre=1:treebagger_verifications
         input_numTrees = final_answer(1,1);%森林中樹的數量
@@ -300,7 +300,7 @@ disp('葉節點最小樣本數')
 disp(final_answer(1,2));
 disp('每顆樹最大的分割次數')
 disp(final_answer(1,3));
-disp('疊帶次數')
+disp('疊代次數')
 disp(nol)
 disp('驗證解答錯誤次數')
-disp(error_time_verifications')
+disp(length(find(error_time_verifications)))

@@ -50,10 +50,10 @@ input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680
 input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
 
 
-for tre=1:10
+for tre=1:20
 
 
-    input_numTrees = 7;%森林中樹的數量
+    input_numTrees = 3;%森林中樹的數量
     input_MinLeafSize=3;%葉節點最小樣本數
     input_MaxNumSplits=3;%每顆樹最大的分割次數
     insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
@@ -71,3 +71,4 @@ for tre=1:10
 
 end
 
+disp(length(find(error_time)))
