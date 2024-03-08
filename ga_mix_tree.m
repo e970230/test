@@ -260,9 +260,7 @@ for nol=1:lterate   %疊代次數
 
 
 end
-answer_more=mode(data_answer);
-answer_mean=mean(data_answer);
-answer=round(answer_mean);
+
 %%
 
 
