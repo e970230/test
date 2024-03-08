@@ -4,6 +4,13 @@ close all
 
 %% 初始設立條件
 
+%03/08更改方向
+%訓練資料先抓到剩一半
+%把基因演算法換成內建的
+%時數基因演算法可以看一下
+%只取第一個到第十個特徵看是否能趨於一個答案
+
+
 %------資料集整理
 feature_dataset=load("feature_dataset_heavy.mat");
 first_data=feature_dataset.feature_dataset;
@@ -28,7 +35,7 @@ rpm_1500_rand=randperm(size(rpm_1500,1));
 rpm_2500_rand=randperm(size(rpm_2500,1));
 
 %選擇需要訓練的各資料樣本數
-randomly_selected_samples=140;
+randomly_selected_samples=100;
 
 %訓練資料集特徵
 train_data=[rpm_120(rpm_120_rand(1:randomly_selected_samples),2:end);rpm_680(rpm_680_rand(1:randomly_selected_samples),2:end);rpm_890(rpm_890_rand(1:randomly_selected_samples),2:end);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),2:end);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),2:end);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),2:end);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),2:end)];
