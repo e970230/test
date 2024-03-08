@@ -57,7 +57,7 @@ for tre=1:40
     input_MinLeafSize=5;%葉節點最小樣本數
     input_MaxNumSplits=4;%每顆樹最大的分割次數
     
-    treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+    treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','regression', ...
             'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
     predictions = predict(treeBaggerModel, input_data);
     answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
