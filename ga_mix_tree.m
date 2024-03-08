@@ -71,7 +71,7 @@ for nV=1:P  %分別對三個未知數進行各自區間的正規化
 end
 
 
-insurance_value=0.00001; %以防再答案完全吻合時分母為0的保險
+
 normalization_Value_end=normalization_Value;
 P2_data=initial_rand_data;
 lterate=100; %疊帶次數
