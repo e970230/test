@@ -49,7 +49,7 @@ c_details0=c_details;
 
 threshold=1;   %篩選門檻, 0~1, 低於門檻的係數值(normalized)皆令其為0
 c_details0((abs(c_details)./max(abs(c_details)))<=threshold)=0;   %細節項中, abs(係數)<threshold的直接令其為0
-                                         %此作法即省略掉不重要的細節處, 以達降噪目的
+%此作法即省略掉不重要的細節處, 以達降噪目的
 
 c=[c_approx,c_details0];   %處理完畢後的係數項
 y_wavelet = waverec(c,l,wname);   %小波重構

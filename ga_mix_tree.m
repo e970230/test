@@ -74,7 +74,7 @@ end
 
 normalization_Value_end=normalization_Value;
 P2_data=initial_rand_data;
-lterate=100; %疊帶次數
+lterate=100; %疊代次數
 
 for nol=1:lterate   %疊代次數
 
@@ -264,36 +264,7 @@ answer_more=mode(data_answer);
 answer_mean=mean(data_answer);
 answer=round(answer_mean);
 %%
-%預測過大修正區
-% test_final_answer=final_answer;
-% input_numTrees = final_answer(1,1);%隨機森林裡決策樹的數量
-% input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
-% input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
-% treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
-%     'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
-% predictions = predict(treeBaggerModel, input_data);
-% answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
-% %分數計算區塊
-% score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-% error_time=(length(find(score_temporary_storage)));
-% score_end=1./(error_time+insurance_value);
-% if score_end==1/insurance_value
-%     while score_end==1/insurance_value
-%         test_final_answer(1,1)=test_final_answer(1,1)-1;
-%         input_numTrees = test_final_answer(1,1);%隨機森林裡決策樹的數量
-%         input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
-%         input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
-%         treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
-%             'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
-%         predictions = predict(treeBaggerModel, input_data);
-%         answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
-%         %分數計算區塊
-%         score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-%         error_time=(length(find(score_temporary_storage)));
-%         score_end=1./(error_time+insurance_value);
-%     end
-%     test_final_answer(1,1)=test_final_answer(1,1)+1;
-% end
+
 
 disp('隨機森林裡決策樹的數量')
 disp(final_answer(1,1));
