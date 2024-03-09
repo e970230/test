@@ -39,7 +39,7 @@ rpm_2500_rand=randperm(size(rpm_2500,1));
 
 
 
-randomly_selected_samples=140;
+randomly_selected_samples=100;
 sampled_data=120;
 
 
@@ -50,7 +50,7 @@ input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680
 input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
 
 
-for tre=1:40
+for tre=1:2
 
 
     input_numTrees = 6;%森林中樹的數量
@@ -60,14 +60,12 @@ for tre=1:40
     treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','regression', ...
             'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
     predictions = predict(treeBaggerModel, input_data);
-    answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
-    score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-    correct_time(tre)=(length(find(score_temporary_storage==0)));
-    
-    score(tre)=correct_time(tre)/size(input_data_answer,1);
+    score(tre)=(mse(input_data_answer)-abs(mse(input_data_answer)-mse(predictions)))/size(input_data_answer,1);
 
 
 
 end
 
-disp(correct_time)
+true_answer=mse(input_data_answer)/size(input_data_answer,1);
+disp(true_answer)
+disp(score)
