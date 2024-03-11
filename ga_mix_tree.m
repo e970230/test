@@ -37,19 +37,25 @@ rpm_2500_rand=randperm(size(rpm_2500,1));
 %選擇需要訓練的各資料樣本數
 randomly_selected_samples=100;
 
-%訓練資料集特徵
-train_data=[rpm_120(rpm_120_rand(1:randomly_selected_samples),2:end);rpm_680(rpm_680_rand(1:randomly_selected_samples),2:end);rpm_890(rpm_890_rand(1:randomly_selected_samples),2:end);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),2:end);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),2:end);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),2:end);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),2:end)];
-%訓練資料集特徵對應分類
+% %訓練資料集特徵
+% train_data=[rpm_120(rpm_120_rand(1:randomly_selected_samples),2:end);rpm_680(rpm_680_rand(1:randomly_selected_samples),2:end);rpm_890(rpm_890_rand(1:randomly_selected_samples),2:end);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),2:end);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),2:end);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),2:end);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),2:end)];
+% %訓練資料集特徵對應分類
+% train_data_y=[rpm_120(rpm_120_rand(1:randomly_selected_samples),1);rpm_680(rpm_680_rand(1:randomly_selected_samples),1);rpm_890(rpm_890_rand(1:randomly_selected_samples),1);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),1);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),1);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),1);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),1)];
+% %測試資料集
+% input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),2:end);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),2:end);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),2:end);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),2:end);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),2:end);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),2:end)];
+% %測試資料集解答
+% input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
+
+train_data=[rpm_120(rpm_120_rand(1:randomly_selected_samples),2:11);rpm_680(rpm_680_rand(1:randomly_selected_samples),2:11);rpm_890(rpm_890_rand(1:randomly_selected_samples),2:11);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),2:11);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),2:11);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),2:11);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),2:11)];
 train_data_y=[rpm_120(rpm_120_rand(1:randomly_selected_samples),1);rpm_680(rpm_680_rand(1:randomly_selected_samples),1);rpm_890(rpm_890_rand(1:randomly_selected_samples),1);rpm_1100(rpm_1100_rand(1:randomly_selected_samples),1);rpm_1400(rpm_1400_rand(1:randomly_selected_samples),1);rpm_1500(rpm_1500_rand(1:randomly_selected_samples),1);rpm_2500(rpm_2500_rand(1:randomly_selected_samples),1)];
-%測試資料集
-input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:end);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),2:end);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),2:end);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),2:end);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),2:end);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),2:end);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),2:end)];
-%測試資料集解答
+input_data=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),2:11);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),2:11);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),2:11);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),2:11);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),2:11);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),2:11);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),2:11)];
 input_data_answer=[rpm_120(rpm_120_rand(randomly_selected_samples+1:end),1);rpm_680(rpm_680_rand(randomly_selected_samples+1:end),1);rpm_890(rpm_890_rand(randomly_selected_samples+1:end),1);rpm_1100(rpm_1100_rand(randomly_selected_samples+1:end),1);rpm_1400(rpm_1400_rand(randomly_selected_samples+1:end),1);rpm_1500(rpm_1500_rand(randomly_selected_samples+1:end),1);rpm_2500(rpm_2500_rand(randomly_selected_samples+1:end),1)];
 
 
-interval_matrix=[4 10;3 7;1 5];%三種未知數的區間矩陣
+
+interval_matrix=[1 40;1 20;1 20];%三種未知數的區間矩陣
 P = 3;         %未知數
-M = 5;         %染色體數
+M = 50;         %染色體數
 N1= 10;        %單個基因數
 N = N1 * P;    %總基因數
 
@@ -81,7 +87,7 @@ end
 
 normalization_Value_end=normalization_Value;
 P2_data=initial_rand_data;
-lterate=100; %疊代次數
+lterate=300; %疊代次數
 
 for nol=1:lterate   %疊代次數
 
@@ -96,14 +102,11 @@ for nol=1:lterate   %疊代次數
         input_numTrees = normalization_Value(tr,1);%隨機森林裡決策樹的數量
         input_MinLeafSize=normalization_Value(tr,2);%葉節點最小樣本數
         input_MaxNumSplits=normalization_Value(tr,3);%每顆樹最大的分割次數
-        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','regression', ...
             'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
         predictions = predict(treeBaggerModel, input_data);
-        answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
-        %分數計算區塊
-        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-        correct_time(tr)=(length(find(score_temporary_storage==0)));
-        score(tr)=correct_time(tr)/size(input_data_answer,1);
+        mse_answer(tr)=mse(predictions-input_data_answer);
+        score(tr)=1./mse_answer(tr);
     
     end
     
@@ -176,7 +179,7 @@ for nol=1:lterate   %疊代次數
     end
     
     %突變
-    mutation_rate = 0.3; % 調整突變率
+    mutation_rate = 0.2; % 調整突變率
     mutation_Value = round(M * N * mutation_rate);
     mutation_S=zeros(1,2);
     P2_data=P_data;
@@ -218,14 +221,11 @@ for nol=1:lterate   %疊代次數
         input_numTrees = normalization_Value_end(tr,1);%隨機森林裡決策樹的數量
         input_MinLeafSize=normalization_Value_end(tr,2);%葉節點最小樣本數
         input_MaxNumSplits=normalization_Value_end(tr,3);%每顆樹最大的分割次數
-        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
+        treeBaggerModel = TreeBagger(input_numTrees, train_data, train_data_y,'Method','regression', ...
             'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
         predictions = predict(treeBaggerModel, input_data);
-        answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
-        %分數計算區塊
-        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-        correct_time(tr)=(length(find(score_temporary_storage==0)));
-        score_end(tr)=correct_time(tr)/size(input_data_answer,1);
+        mse_answer_end(tr)=mse(predictions-input_data_answer);
+        score_end(tr)=1./mse_answer_end(tr);
     
     end
     
@@ -240,28 +240,21 @@ for nol=1:lterate   %疊代次數
         best_answer=final_answer;
         best_score=score_answer;
     end
-    data_answer(nol,:)=final_answer;
 %---------------------------------驗證區域    
-    treebagger_verifications=40;        %驗證次數
 
-    for tre=1:treebagger_verifications
-        input_numTrees = final_answer(1,1);%森林中樹的數量
-        input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
-        input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
-        treeBaggerModel_verifications_mode = TreeBagger(input_numTrees, train_data, train_data_y,'Method','classification', ...
-            'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
-        predictions = predict(treeBaggerModel, input_data);
-        answer_prediceions=str2double(predictions);%由於輸出的答案不是數值是字串，所以將字串轉數值
+    ture_score=mse(input_data_answer);
+    input_numTrees = final_answer(1,1);%森林中樹的數量
+    input_MinLeafSize=final_answer(1,2);%葉節點最小樣本數
+    input_MaxNumSplits=final_answer(1,3);%每顆樹最大的分割次數
+    treeBaggerModel_verifications_mode = TreeBagger(input_numTrees, train_data, train_data_y,'Method','regression', ...
+        'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+    predictions = predict(treeBaggerModel, input_data);
+    mse_answer(nol)=mse(predictions-input_data_answer);
+    ture(nol)=mse_answer(nol)./ture_score;
         
-        score_temporary_storage=((abs(answer_prediceions-input_data_answer)));
-        %驗證次數內每次運行預測答案錯誤次數
-        error_time_verifications(tre)=(length(find(score_temporary_storage)));
         
-    end
-    %將歷代驗證後的錯誤次數儲存下來
-    error_nol(nol)=length(find(error_time_verifications));
-    %跑完驗證後根據答案錯誤資料集必須達成只能有1次結果沒有精準預測否則無法跳出迴圈
-    if length(find(error_time_verifications))<=1
+
+    if min(mse_answer)<=200
         break
     end
 
@@ -271,6 +264,8 @@ end
 %%
 
 
+plot(1:nol,mse_answer)
+
 disp('隨機森林裡決策樹的數量')
 disp(final_answer(1,1));
 disp('葉節點最小樣本數')
@@ -279,5 +274,4 @@ disp('每顆樹最大的分割次數')
 disp(final_answer(1,3));
 disp('疊代次數')
 disp(nol)
-disp('歷代驗證錯誤次數')
-disp(error_nol)
+
