@@ -57,11 +57,11 @@ train_data_all_y=first_data(:,1);
 % x=[1 1 1];
 
 % 設定基因演算法的初始參數
-PopulationSize=10;     %族群大小意旨染色體數目
-FitnessLimit=20;      %目標函數跳出門檻(此題為小於此值則演算法結束
+PopulationSize=100;     %族群大小意旨染色體數目
+FitnessLimit=10;      %目標函數跳出門檻(此題為小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
     'PlotFcn',{'gaplotbestf','gaplotbestindiv','gaplotexpectation'},'FitnessLimit',FitnessLimit, ...
-    'Generations',100);
+    'Generations',300);
 %'iter'顯示出每次跌代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -71,8 +71,8 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 
 % 定義要優化的參數範圍
 numVariables = 3; % 三個參數
-lb = [1, 1, 10];  % 下限
-ub = [80, 30, 30]; % 上限
+lb = [5, 5, 10];  % 下限
+ub = [80, 40, 40]; % 上限
 
 % 定義訓練數據和驗證數據
 % trainData =train_data; % 訓練數據
