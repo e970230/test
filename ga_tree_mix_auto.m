@@ -58,7 +58,7 @@ train_data_all_y=first_data(:,1);
 
 % 設定基因演算法的初始參數
 PopulationSize=50;     %族群大小意旨染色體數目
-FitnessLimit=10;      %目標函數跳出門檻(此題為小於此值則演算法結束
+FitnessLimit=15;      %目標函數跳出門檻(此題為小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
     'PlotFcn',{'gaplotbestf','gaplotbestindiv','gaplotexpectation'},'FitnessLimit',FitnessLimit, ...
     'Generations',100);
@@ -72,7 +72,7 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 % 定義要優化的參數範圍
 numVariables = 3; % 三個參數
 lb = [5, 5, 10];  % 下限
-ub = [80, 40, 40]; % 上限
+ub = [80, 50, 50]; % 上限
 
 % 定義訓練數據和驗證數據
 % trainData =train_data; % 訓練數據
