@@ -56,10 +56,10 @@ train_data_all_y=first_data(:,1);
 
 
 % 設定基因演算法的初始參數`
-PopulationSize=20;     %族群大小意旨染色體數目
+PopulationSize=30;     %族群大小意旨染色體數目
 FitnessLimit=15;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize,'FitnessLimit',FitnessLimit, ...
-    'Generations',30,'OutputFcn',@gaoutputfunction);
+    'Generations',50,'OutputFcn',@gaoutputfunction);
 %'iter'顯示出每次跌代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
