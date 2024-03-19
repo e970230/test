@@ -1,5 +1,6 @@
 clc
 clear
+clear Population_answer
 close all
 tic
 feature_dataset=load("feature_dataset_heavy.mat");
@@ -54,12 +55,11 @@ train_data_all=first_data(:,2:end);
 train_data_all_y=first_data(:,1);
 
 
-% 設定基因演算法的初始參數
+% 設定基因演算法的初始參數`
 PopulationSize=20;     %族群大小意旨染色體數目
 FitnessLimit=15;      %目標函數跳出門檻(小於此值則演算法結束
-options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
-    'PlotFcn',{'gaplotbestf','gaplotbestindiv','gaplotexpectation'},'FitnessLimit',FitnessLimit, ...
-    'Generations',20,'OutputFcn',@gaoutputfunction);
+options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize,'FitnessLimit',FitnessLimit, ...
+    'Generations',30,'OutputFcn',@gaoutputfunction);
 %'iter'顯示出每次跌代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -107,10 +107,10 @@ fitnessFunction = @(x) RandomForestFitness(x, trainData, trainLabels, validData,
 %stall generations疊代沒有優化的次數
 
 %%
-answer={};
+answer=[];
 final_answer=[];
 for pl=1:size(Population_answer,3)
-    [answer{pl},answer_index(pl)]=min(Population_answer(:,5,pl));
+    [answer(pl),answer_index(pl)]=min(Population_answer(:,5,pl));
     final_answer(pl,:)=Population_answer(answer_index(pl),1:4,pl);
 end
 
@@ -131,7 +131,7 @@ predictions = predict(finalModel, validData);
 disp('隨機森林裡決策樹的數量')
 disp(bestNumTrees);
 disp('每顆樹最大的分割次數')
-disp(bestMaxDepth);
+disp(bestMaxDepth); 
 disp('葉節點最小樣本數')
 disp(bestMinLeafSize);
 

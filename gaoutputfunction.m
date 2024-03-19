@@ -38,5 +38,5 @@ function [state, options, optchanged] = gaoutputfunction(options, state, flag)
 
     state.Population_answer = Population_answer;
     assignin('base', 'Population_answer', Population_answer);   %將副程式算出的值顯示在主程式的workspace上
-    whos Population_answer                                      %顯示Population_answer的信息
+%     whos Population_answer                                      %顯示Population_answer的信息
 end
