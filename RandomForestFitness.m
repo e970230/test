@@ -4,7 +4,6 @@ function fitness = RandomForestFitness(params, trainData, trainLabels, validData
     % trainLabels: 訓練數據對應標籤
     % validData: 驗證數據
     % validLabels: 驗證答案
-    
     % 使用優化後的參數訓練隨機森林模型
     numTrees = round(params(1,1));
     maxDepth = round(params(1,2));
