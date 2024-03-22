@@ -3,12 +3,12 @@ clear
 clear Population_answer
 close all
 tic
-feature_dataset=load("feature_dataset_heavy.mat");
-first_data=feature_dataset.feature_dataset;
+feature_dataset=load("feature_dataset_top30.mat");
+first_data=feature_dataset.feature_top30.dataset;
 bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
 
 % 創建一個並行計算池，指定使用本地處理器的多個核心
-parpool('local', 5); % 這裡4代表使用4個核心，可以根據需要調整
+% parpool('local', 5); % 這裡4代表使用4個核心，可以根據需要調整
 % rpm_120=first_data(find(first_data==120),:);
 % rpm_680=first_data(find(first_data==680),:);
 % rpm_890=first_data(find(first_data==890),:);
@@ -59,10 +59,10 @@ train_data_all_y=first_data(:,1);
 
 
 % 設定基因演算法的初始參數`
-PopulationSize=30;     %族群大小意旨染色體數目
-FitnessLimit=15;      %目標函數跳出門檻(小於此值則演算法結束
+PopulationSize=40;     %族群大小意旨染色體數目
+FitnessLimit=10;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize,'FitnessLimit',FitnessLimit, ...
-    'Generations',50,'OutputFcn',@gaoutputfunction,'UseParallel', true);
+    'Generations',1000,'OutputFcn',@gaoutputfunction);
 %'iter'顯示出每次跌代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -74,8 +74,8 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 
 % 定義要優化的參數範圍
 numVariables = 3; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
-lb = [200, 5, 5];  % 下限
-ub = [600, 20, 20]; % 上限
+lb = [100, 5, 4];  % 下限
+ub = [400, 50, 10]; % 上限
 
 % 定義訓練數據和驗證數據
 % trainData =train_data; % 訓練數據
@@ -109,7 +109,7 @@ fitnessFunction = @(x) RandomForestFitness(x, trainData, trainLabels, validData,
 %Func-count調動目標函數的次數
 %stall generations疊代沒有優化的次數
 
-delete(gcp);
+% delete(gcp);
 
 %%
 answer=[];
