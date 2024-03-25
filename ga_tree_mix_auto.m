@@ -59,9 +59,9 @@ train_data_all_y=first_data(:,1);
 
 
 % 設定基因演算法的初始參數`
-PopulationSize=40;     %族群大小意旨染色體數目
-FitnessLimit=10;      %目標函數跳出門檻(小於此值則演算法結束
-options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize,'FitnessLimit',FitnessLimit, ...
+PopulationSize=20;     %族群大小意旨染色體數目
+% FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
+options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
     'Generations',1000,'OutputFcn',@gaoutputfunction);
 %'iter'顯示出每次跌代的詳細資訊
 %'PlotFcn'畫圖指令
@@ -74,8 +74,8 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 
 % 定義要優化的參數範圍
 numVariables = 3; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
-lb = [100, 5, 4];  % 下限
-ub = [400, 50, 10]; % 上限
+lb = [100, 5, 2];  % 下限
+ub = [1000, 100, 10]; % 上限
 
 % 定義訓練數據和驗證數據
 % trainData =train_data; % 訓練數據
@@ -139,6 +139,9 @@ disp('每顆樹最大的分割次數')
 disp(bestMaxDepth); 
 disp('葉節點最小樣本數')
 disp(bestMinLeafSize);
+disp('歷代最佳分數')
+disp(final_answer_ture);
+
 
 
 
@@ -146,6 +149,8 @@ toc
 %%
 figure(2)
 plot(1:size(final_answer,1),final_answer(:,4));
+xlabel('疊代次數')
+ylabel('每次疊代最佳MSE')
 
 %%
 corrict_time=length(find(abs(predictions-validLabels)==0))

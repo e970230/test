@@ -4,10 +4,10 @@ close all
 
 
 %% 初始設立條件
-feature_dataset=load("feature_dataset_heavy.mat");
-first_data=feature_dataset.feature_dataset;
+feature_dataset=load("feature_dataset_top30.mat");
+first_data=feature_dataset.feature_top30.dataset;
 bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
-pool = parpool('local', 4); % 建立一個具有4個工作進程的本地平行運算池
+% pool = parpool('local', 4); % 建立一個具有4個工作進程的本地平行運算池
 
 rpm_120=first_data(find(first_data==120),:);
 rpm_680=first_data(find(first_data==680),:);
@@ -41,7 +41,7 @@ rpm_2500_rand=randperm(size(rpm_2500,1));
 
 
 
-randomly_selected_samples=100;
+randomly_selected_samples=170;
 sampled_data=120;
 
 
@@ -59,29 +59,29 @@ validData = train_data_all; % 驗證數據
 validLabels = train_data_all_y; % 驗證標籤
 
 % 設置TreeBagger的選項，包括開啟平行運算
-treeBaggerOptions = statset('UseParallel', true);
+% treeBaggerOptions = statset('UseParallel', true);
 
 
 % for tre=1:10
 tic
 
-input_numTrees = 500;%森林中樹的數量
+input_numTrees = 321;%森林中樹的數量
 input_MinLeafSize=5;%葉節點最小樣本數
-input_MaxNumSplits=10;%每顆樹最大的分割次數
+input_MaxNumSplits=26;%每顆樹最大的分割次數
 
 treeBaggerModel = TreeBagger(input_numTrees, trainData, trainLabels,'Method','regression', ...
-        'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits,'Options', treeBaggerOptions);
+        'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
 predictions = predict(treeBaggerModel, validData);
 mse_answer=mse(predictions-validLabels);
 mse_mean_answer=mean((predictions - validLabels).^2);
-score=1./mse_answer;
+
 toc
 %%
 
 % end
-delete(gcp);
+% delete(gcp);
 % true_answer=mse(input_data_answer)/size(input_data_answer,1);
-ture_score=mse(validLabels);
+
 ture=mse_answer;
 disp(ture)
-disp(score)
+
