@@ -57,18 +57,18 @@ bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
 train_data_all=first_data(:,2:end);
 train_data_all_y=first_data(:,1);
 
-
+intcon=[1 2 3];
 % 設定基因演算法的初始參數`
-PopulationSize=20;     %族群大小意旨染色體數目
+PopulationSize=30;     %族群大小意旨染色體數目
 % FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
     'Generations',1000,'OutputFcn',@gaoutputfunction);
-%'iter'顯示出每次跌代的詳細資訊
+%'iter'顯示出每次疊代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
 % gaplotbestindiv最佳解答(x)
 % gaplotexpectation每次跌代的期望值
-% Generations跌代次數
+% Generations疊代次數
 % OutputFun輸出資訊客製化
 
 
@@ -98,7 +98,7 @@ validLabels = train_data_all_y; % 驗證標籤
 fitnessFunction = @(x) RandomForestFitness(x, trainData, trainLabels, validData, validLabels);
 
 % 使用基因演算法搜索最佳參數
-[x,fval,exitflag,output,population,scores] = ga(fitnessFunction, numVariables, [], [], [], [], lb, ub, [], options);
+[x,fval,exitflag,output,population,scores] = ga(fitnessFunction, numVariables, [], [], [], [], lb, ub, [],intcon,options);
 
 %[x]解答
 %[fval]分數

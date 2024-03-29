@@ -65,8 +65,8 @@ validLabels = train_data_all_y; % 驗證標籤
 % for tre=1:10
 tic
 
-input_numTrees = 321;%森林中樹的數量
-input_MinLeafSize=5;%葉節點最小樣本數
+input_numTrees = 390;%森林中樹的數量
+input_MinLeafSize=2;%葉節點最小樣本數
 input_MaxNumSplits=26;%每顆樹最大的分割次數
 
 treeBaggerModel = TreeBagger(input_numTrees, trainData, trainLabels,'Method','regression', ...
@@ -82,6 +82,6 @@ toc
 % delete(gcp);
 % true_answer=mse(input_data_answer)/size(input_data_answer,1);
 
-ture=mse_answer;
+ture=mse_mean_answer;
 disp(ture)
 

@@ -5,9 +5,9 @@ function fitness = RandomForestFitness(params, trainData, trainLabels, validData
     % validData: 驗證數據
     % validLabels: 驗證答案
     % 使用優化後的參數訓練隨機森林模型
-    numTrees = round(params(1,1));
-    maxDepth = round(params(1,2));
-    minLeafSize = round(params(1,3));
+    numTrees = params(1,1);
+    maxDepth = params(1,2);
+    minLeafSize = params(1,3);
     
     treeBaggerModel = TreeBagger(numTrees, trainData, trainLabels, 'Method', 'regression', ...
         'MaxNumSplits', maxDepth, 'MinLeafSize', minLeafSize);
