@@ -65,9 +65,9 @@ validLabels = train_data_all_y; % 驗證標籤
 % for tre=1:10
 tic
 
-input_numTrees = 390;%森林中樹的數量
+input_numTrees = 1;%森林中樹的數量
 input_MinLeafSize=2;%葉節點最小樣本數
-input_MaxNumSplits=26;%每顆樹最大的分割次數
+input_MaxNumSplits=89;%每顆樹最大的分割次數
 
 treeBaggerModel = TreeBagger(input_numTrees, trainData, trainLabels,'Method','regression', ...
         'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
