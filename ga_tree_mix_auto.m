@@ -62,7 +62,7 @@ intcon=[1 2 3];
 PopulationSize=30;     %族群大小意旨染色體數目
 % FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
-    'Generations',1000,'OutputFcn',@gaoutputfunction);
+    'Generations',1000,'OutputFcn',@gaoutputfunction,'CrossoverFraction', 0.5);
 %'iter'顯示出每次疊代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -70,7 +70,7 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 % gaplotexpectation每次跌代的期望值
 % Generations疊代次數
 % OutputFun輸出資訊客製化
-
+% CrossoverFraction更改交配率
 
 % 定義要優化的參數範圍
 numVariables = 3; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
