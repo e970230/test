@@ -9,40 +9,40 @@ first_data=feature_dataset.feature_top30.dataset;
 bit2int = @(bits) sum(bits .* 2.^(length(bits)-1:-1:0));
 % pool = parpool('local', 4); % 建立一個具有4個工作進程的本地平行運算池
 
-rpm_120=first_data(find(first_data==120),:);
-rpm_680=first_data(find(first_data==680),:);
-rpm_890=first_data(find(first_data==890),:);
-rpm_1100=first_data(find(first_data==1100),:);
-rpm_1400=first_data(find(first_data==1400),:);
-rpm_1500=first_data(find(first_data==1500),:);
-rpm_2500=first_data(find(first_data==2500),:);
-
-AA=[120 680 890 1100 1400 1500 2500];
-
-
-
-rpm_680_size=size(rpm_680,1);
-rpm_890_size=size(rpm_890,1);
-rpm_1100_size=size(rpm_1100,1);
-rpm_1400_size=size(rpm_1400,1);
-rpm_1500_size=size(rpm_1500,1);
-rpm_2500_size=size(rpm_2500,1);
-
-
-%各轉速隨機數
-
-rpm_120_rand=randperm(size(rpm_120,1));
-rpm_680_rand=randperm(size(rpm_680,1));
-rpm_890_rand=randperm(size(rpm_890,1));
-rpm_1100_rand=randperm(size(rpm_1100,1));
-rpm_1400_rand=randperm(size(rpm_1400,1));
-rpm_1500_rand=randperm(size(rpm_1500,1));
-rpm_2500_rand=randperm(size(rpm_2500,1));
-
-
-
-randomly_selected_samples=170;
-sampled_data=120;
+% rpm_120=first_data(find(first_data==120),:);
+% rpm_680=first_data(find(first_data==680),:);
+% rpm_890=first_data(find(first_data==890),:);
+% rpm_1100=first_data(find(first_data==1100),:);
+% rpm_1400=first_data(find(first_data==1400),:);
+% rpm_1500=first_data(find(first_data==1500),:);
+% rpm_2500=first_data(find(first_data==2500),:);
+% 
+% AA=[120 680 890 1100 1400 1500 2500];
+% 
+% 
+% 
+% rpm_680_size=size(rpm_680,1);
+% rpm_890_size=size(rpm_890,1);
+% rpm_1100_size=size(rpm_1100,1);
+% rpm_1400_size=size(rpm_1400,1);
+% rpm_1500_size=size(rpm_1500,1);
+% rpm_2500_size=size(rpm_2500,1);
+% 
+% 
+% %各轉速隨機數
+% 
+% rpm_120_rand=randperm(size(rpm_120,1));
+% rpm_680_rand=randperm(size(rpm_680,1));
+% rpm_890_rand=randperm(size(rpm_890,1));
+% rpm_1100_rand=randperm(size(rpm_1100,1));
+% rpm_1400_rand=randperm(size(rpm_1400,1));
+% rpm_1500_rand=randperm(size(rpm_1500,1));
+% rpm_2500_rand=randperm(size(rpm_2500,1));
+% 
+% 
+% 
+% randomly_selected_samples=170;
+% sampled_data=120;
 
 
 
@@ -58,23 +58,25 @@ trainLabels =train_data_all_y; % 訓練標籤
 validData = train_data_all; % 驗證數據
 validLabels = train_data_all_y; % 驗證標籤
 
-% 設置TreeBagger的選項，包括開啟平行運算
-% treeBaggerOptions = statset('UseParallel', true);
-
 
 % for tre=1:10
 tic
-
-input_numTrees = 1;%森林中樹的數量
-input_MinLeafSize=2;%葉節點最小樣本數
-input_MaxNumSplits=89;%每顆樹最大的分割次數
-
-treeBaggerModel = TreeBagger(input_numTrees, trainData, trainLabels,'Method','regression', ...
-        'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
-predictions = predict(treeBaggerModel, validData);
-mse_answer=mse(predictions-validLabels);
-mse_mean_answer=mean((predictions - validLabels).^2);
-
+ra_test=10;
+for i=1:ra_test
+    input_numTrees = 390;%森林中樹的數量
+    input_MinLeafSize=2;%葉節點最小樣本數
+    input_MaxNumSplits=26;%每顆樹最大的分割次數
+    
+    X=[input_numTrees,input_MaxNumSplits,input_MinLeafSize];
+    
+    fitness(i) = RandomForestFitness(X, trainData, trainLabels, validData, validLabels);
+end
+% treeBaggerModel = TreeBagger(input_numTrees, trainData, trainLabels,'Method','regression', ...
+%         'MinLeafSize',input_MinLeafSize,'MaxNumSplits',input_MaxNumSplits);
+% predictions = predict(treeBaggerModel, validData);
+% mse_answer=mse(predictions-validLabels);
+% mse_mean_answer=mean((predictions - validLabels).^2);
+disp(fitness)
 toc
 %%
 
@@ -82,6 +84,6 @@ toc
 % delete(gcp);
 % true_answer=mse(input_data_answer)/size(input_data_answer,1);
 
-ture=mse_mean_answer;
-disp(ture)
+% ture=mse_mean_answer;
+% disp(ture)
 

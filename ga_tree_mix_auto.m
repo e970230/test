@@ -1,7 +1,7 @@
 clc
 clear
-clear Population_answer
 close all
+
 tic
 feature_dataset=load("feature_dataset_top30.mat");
 first_data=feature_dataset.feature_top30.dataset;
@@ -62,7 +62,7 @@ intcon=[1 2 3];
 PopulationSize=30;     %族群大小意旨染色體數目
 % FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
-    'Generations',1000,'OutputFcn',@gaoutputfunction,'CrossoverFraction', 0.5);
+    'Generations',1000,'CrossoverFraction', 0.5,'OutputFcn',@gaoutputfunction);
 %'iter'顯示出每次疊代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -75,7 +75,7 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 % 定義要優化的參數範圍
 numVariables = 3; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
 lb = [100, 5, 2];  % 下限
-ub = [1000, 100, 10]; % 上限
+ub = [475, 100, 10]; % 上限
 
 % 定義訓練數據和驗證數據
 % trainData =train_data; % 訓練數據

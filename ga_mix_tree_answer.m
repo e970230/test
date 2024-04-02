@@ -15,9 +15,9 @@ trainLabels =train_data_all_y; % 訓練標籤
 validData = train_data_all; % 驗證數據
 validLabels = train_data_all_y; % 驗證標籤
 
-x1_range=[1 1000];
+x1_range=[100 400];
 x2_range=[5 100];
-x3_range=[2 10];
+x3_range=[2 2];
 
 tic
 for i=x1_range(1):x1_range(2)
