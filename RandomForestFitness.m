@@ -9,6 +9,7 @@ function fitness = RandomForestFitness(params, trainData, trainLabels, validData
     maxDepth = params(1,2);
     minLeafSize = params(1,3);
     
+
     treeBaggerModel = TreeBagger(numTrees, trainData, trainLabels, 'Method', 'regression', ...
         'MaxNumSplits', maxDepth, 'MinLeafSize', minLeafSize);
     

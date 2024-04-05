@@ -16,9 +16,9 @@ first_data=feature_dataset.feature_top30.dataset;
 train_data_all=first_data(:,2:end);
 train_data_all_y=first_data(:,1);
 
-intcon=[1 2 3];
+intcon=[1 2 3 4 5];
 % 設定基因演算法的初始參數`
-PopulationSize=4;     %族群大小意旨染色體數目
+PopulationSize=10;     %族群大小意旨染色體數目
 % FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
     'Generations',10,'CrossoverFraction', 0.5,'OutputFcn',@gaoutputfunction);
@@ -32,9 +32,9 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 % CrossoverFraction更改交配率
 
 % 定義要優化的參數範圍
-numVariables = 3; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
-lb = [100, 5, 2];  % 下限
-ub = [1000, 100, 10]; % 上限
+numVariables = 5; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
+lb = [100, 5, 2, 2, 2];  % 下限
+ub = [1000, 100, 10, 30, 30]; % 上限
 
 
 
@@ -45,11 +45,12 @@ trainLabels =train_data_all_y; % 訓練標籤
 validData = train_data_all; % 驗證數據
 validLabels = train_data_all_y; % 驗證標籤
 
+input=[100 10 2];
 
 %%
 
 % 定義目標函數
-fitnessFunction = @(x)  RandomForestFitness(x, trainData, trainLabels, validData, validLabels);
+fitnessFunction = @(x)  RandomForestFitness(x, trainData(:,x), trainLabels, validData(:,x), validLabels);
 
 % 使用基因演算法搜索最佳參數
 [x,fval,exitflag,output,population,scores] = ga(fitnessFunction, numVariables, [], [], [], [], lb, ub, [],intcon,options);

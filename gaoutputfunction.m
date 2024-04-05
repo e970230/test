@@ -2,7 +2,7 @@ function [state, options, optchanged] = gaoutputfunction(options, state, flag)
     % 定義history用來存儲每次跌代的答案和分數
     
     persistent history
-    Generation=state.Generation;
+    Generation=state.Generation;  %從state裡獲取現在疊代次數的資訊
     if Generation==0
         history=[];
     end
