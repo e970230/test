@@ -20,7 +20,7 @@ validLabels = train_data_all_y; % 驗證標籤
 
 litera=size(answer_for_ga,1);
 
-
+nov=[2 4 5];
 
 % for tre=1:10
 tic
@@ -33,7 +33,7 @@ for li=1:litera
         input_MinLeafSize=answer_for_ga(li,3);%葉節點最小樣本數
         
         X=[input_numTrees,input_MaxNumSplits,input_MinLeafSize];
-        fitness(li,i) = RandomForestFitness(X, trainData, trainLabels, validData, validLabels);
+        fitness(li,i) = RandomForestFitness(X, trainData, trainLabels, validData, validLabels,nov);
         disp("第" + num2str(li) + "組" + "第" + num2str(i) + "次適性值")
         disp(fitness(li,i))
     end

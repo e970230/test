@@ -9,9 +9,9 @@ function [state, options, optchanged] = gaoutputfunction(options, state, flag)
     % 在每次跌代(iteration)時，保存當前的Generation、Best和BestScore
     if strcmpi(flag, 'iter')
         % 將當前的Generation、Best和BestScore添加到history的最後一個元素中
-        history(:,1:3,Generation) = state.Population;     %每個染色體各自的答案
-        history(:,4,Generation) = state.Best(state.Generation);                 %最佳分數
-        history(:,5,Generation) = state.Score;               %每個染色體各自的分數
+        history(:,1:size(state.Population,2),Generation) = state.Population;     %每個染色體各自的答案
+        history(:,size(state.Population,2)+1,Generation) = state.Best(state.Generation);                 %最佳分數
+        history(:,size(state.Population,2)+2,Generation) = state.Score;               %每個染色體各自的分數
         
     end
     

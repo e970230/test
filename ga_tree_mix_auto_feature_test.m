@@ -4,11 +4,11 @@ close all
 
 tic
 data=load("feature_dataset_heavy.mat");
-data=data.feature_dataset;
+first_data=data.feature_dataset;
 
 
-feature_dataset=load("feature_dataset_top30.mat");
-first_data=feature_dataset.feature_top30.dataset;
+% feature_dataset=load("feature_dataset_top30.mat");
+% first_data=feature_dataset.feature_top30.dataset;
 
 
 %%
@@ -16,12 +16,12 @@ first_data=feature_dataset.feature_top30.dataset;
 train_data_all=first_data(:,2:end);
 train_data_all_y=first_data(:,1);
 
-intcon=[1 2 3 4 5];
+
 % 設定基因演算法的初始參數`
-PopulationSize=10;     %族群大小意旨染色體數目
+PopulationSize=30;     %族群大小意旨染色體數目
 % FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
-    'Generations',10,'CrossoverFraction', 0.5,'OutputFcn',@gaoutputfunction);
+    'Generations',1000,'CrossoverFraction', 0.7,'OutputFcn',@gaoutputfunction);
 %'iter'顯示出每次疊代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -31,10 +31,16 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 % OutputFun輸出資訊客製化
 % CrossoverFraction更改交配率
 
+Y_sample=30;    %選取要得樣本數量
 % 定義要優化的參數範圍
-numVariables = 5; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
-lb = [100, 5, 2, 2, 2];  % 下限
-ub = [1000, 100, 10, 30, 30]; % 上限
+numVariables = 3+Y_sample; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)加上選取的樣本數量
+intcon=1:numVariables;  %整數變數的數量
+
+
+lb_sample=ones(1,Y_sample);
+lb = [100 5 2 lb_sample];  % 下限
+ub_sample=(size(first_data,2)-1)*ones(1,Y_sample);
+ub = [1000 100 10 ub_sample]; % 上限
 
 
 
@@ -50,7 +56,7 @@ input=[100 10 2];
 %%
 
 % 定義目標函數
-fitnessFunction = @(x)  RandomForestFitness(x, trainData(:,x), trainLabels, validData(:,x), validLabels);
+fitnessFunction = @(x) RandomForestFitness(x, trainData, trainLabels, validData, validLabels,x);
 
 % 使用基因演算法搜索最佳參數
 [x,fval,exitflag,output,population,scores] = ga(fitnessFunction, numVariables, [], [], [], [], lb, ub, [],intcon,options);
@@ -70,8 +76,8 @@ fitnessFunction = @(x)  RandomForestFitness(x, trainData(:,x), trainLabels, vali
 answer=[];
 final_answer=[];
 for pl=1:size(Population_answer,3)
-    [answer(pl),answer_index(pl)]=min(Population_answer(:,5,pl));
-    final_answer(pl,:)=Population_answer(answer_index(pl),1:4,pl);
+    [answer(pl),answer_index(pl)]=min(Population_answer(:,end,pl));
+    final_answer(pl,:)=Population_answer(answer_index(pl),[1:3 end],pl);
 end
 
 [final_answer_ture,final_answer_index]=min(final_answer(:,4));
@@ -103,7 +109,7 @@ disp(final_answer_ture);
 toc
 %%
 figure(2)
-plot(1:size(final_answer,1),final_answer(:,4));
+plot(1:size(final_answer,1),final_answer(:,end));
 xlabel('疊代次數')
 ylabel('每次疊代最佳MSE')
 
