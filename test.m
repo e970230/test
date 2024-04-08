@@ -4,10 +4,10 @@ close all
 
 
 %% 初始設立條件
-feature_dataset=load("feature_dataset_top30.mat");
-first_data=feature_dataset.feature_top30.dataset;
-load("answer_for_ga.mat","answer_for_ga")
-
+feature_dataset=load("feature_dataset_heavy.mat");
+first_data=feature_dataset.feature_dataset;
+% load("answer_for_ga.mat","answer_for_ga")
+answer_for_ga=[849 46 2];
 
 
 train_data_all=first_data(:,2:end);
@@ -20,7 +20,7 @@ validLabels = train_data_all_y; % 驗證標籤
 
 litera=size(answer_for_ga,1);
 
-nov=[2 4 5];
+nov=[1 1 1 final_sample_input_answer];
 
 % for tre=1:10
 tic
@@ -41,12 +41,20 @@ for li=1:litera
 
 end
 %%
-mean_fitness=mean(fitness,2)
-var_fitness=var(fitness,0,2)
-std_fitness=std(fitness,0,2)
+mean_fitness=mean(fitness,2);
+var_fitness=var(fitness,0,2);
+std_fitness=std(fitness,0,2);
 
+disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林平均值" + num2str(mean_fitness))
+disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林變異數" + num2str(var_fitness))
+disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林標準差" + num2str(std_fitness))
 toc
 %%
+unique(final_sample_input_answer)
+
+
+disp('所選的特徵')
+disp(final_sample_input_answer)
 
 % end
 % delete(gcp);
