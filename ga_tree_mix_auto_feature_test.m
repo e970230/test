@@ -8,16 +8,22 @@ first_data=data.feature_dataset;
 train_data_all=first_data(:,2:end);
 train_data_all_y=first_data(:,1);
 
+%全部資料集和標籤
+trainData =train_data_all; % 訓練數據
+trainLabels =train_data_all_y; % 訓練標籤
+validData = train_data_all; % 驗證數據
+validLabels = train_data_all_y; % 驗證標籤
+
 % feature_dataset=load("feature_dataset_top30.mat");
 % first_data=feature_dataset.feature_top30.dataset;
 
 %%
 
 % 設定基因演算法的初始參數
-PopulationSize=30;     %族群大小意旨染色體數目
+PopulationSize=10;     %族群大小意旨染色體數目
 % FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
-    'Generations',1000,'CrossoverFraction', 0.7,'OutputFcn',@gaoutputfunction);
+    'Generations',10,'CrossoverFraction', 0.7,'OutputFcn',@gaoutputfunction);
 %'Display','iter'顯示出每次疊代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -35,15 +41,12 @@ intcon=1:numVariables;  %整數變數的數量
 
 lb_sample=ones(1,Y_sample); %每個選取樣本的下限
 ub_sample=size(train_data_all,2)*ones(1,Y_sample); %每個選取樣本的上限
+lb_input=[100 5 2];         %超參數猜值下限
+ub_input=[1000 100 10];     %超參數猜值上限
+lb = [lb_input lb_sample];  % 下限
+ub = [ub_input ub_sample]; % 上限
 
-lb = [100 5 2 lb_sample];  % 下限
-ub = [1000 100 10 ub_sample]; % 上限
 
-%全部資料集和標籤
-trainData =train_data_all; % 訓練數據
-trainLabels =train_data_all_y; % 訓練標籤
-validData = train_data_all; % 驗證數據
-validLabels = train_data_all_y; % 驗證標籤
 
 
 %%
@@ -110,13 +113,14 @@ disp('每顆樹最大的分割次數')
 disp(input_MaxNumSplits); 
 disp('葉節點最小樣本數')
 disp(input_MinLeafSize);
-disp('選擇的特徵')
-disp(final_sample_input_answer);
-disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林平均值" + num2str(mean_fitness))
-disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林變異數" + num2str(var_fitness))
-disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林標準差" + num2str(std_fitness))
 disp('歷代最佳分數')
 disp(final_answer_ture);
+disp('選擇的特徵')
+disp(sort(final_sample_input_answer));
+disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林所得平均值" + num2str(mean_fitness))
+disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林所得變異數" + num2str(var_fitness))
+disp("相同超參數重複建立" + num2str(ra_test)+ "次隨機森林所得標準差" + num2str(std_fitness))
+
 
 
 toc

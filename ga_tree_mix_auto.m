@@ -3,8 +3,8 @@ clear
 close all
 
 tic
-data=load("feature_dataset_heavy.mat");
-data=data.feature_dataset;
+% data=load("feature_dataset_heavy.mat");
+% data=data.feature_dataset;
 
 
 feature_dataset=load("feature_dataset_top30.mat");
@@ -18,10 +18,10 @@ train_data_all_y=first_data(:,1);
 
 intcon=[1 2 3];
 % 設定基因演算法的初始參數`
-PopulationSize=4;     %族群大小意旨染色體數目
+PopulationSize=100;     %族群大小意旨染色體數目
 % FitnessLimit=5;      %目標函數跳出門檻(小於此值則演算法結束
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
-    'Generations',10,'CrossoverFraction', 0.5,'OutputFcn',@gaoutputfunction);
+    'Generations',1000,'CrossoverFraction', 0.5,'OutputFcn',@gaoutputfunction);
 %'iter'顯示出每次疊代的詳細資訊
 %'PlotFcn'畫圖指令
 % gaplotbestf紀錄每次跌代中最佳答案的分數(fitness)
@@ -33,8 +33,8 @@ options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize
 
 % 定義要優化的參數範圍
 numVariables = 3; % 三個參數(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
-lb = [100, 5, 2];  % 下限
-ub = [1000, 100, 10]; % 上限
+lb = [10, 5, 5];  % 下限
+ub = [200, 50, 10]; % 上限
 
 
 
@@ -49,7 +49,7 @@ validLabels = train_data_all_y; % 驗證標籤
 %%
 
 % 定義目標函數
-fitnessFunction = @(x)  RandomForestFitness(x, trainData, trainLabels, validData, validLabels);
+fitnessFunction = @(x)  RandomForestFitnessBasic(x, trainData, trainLabels, validData, validLabels);
 
 % 使用基因演算法搜索最佳參數
 [x,fval,exitflag,output,population,scores] = ga(fitnessFunction, numVariables, [], [], [], [], lb, ub, [],intcon,options);

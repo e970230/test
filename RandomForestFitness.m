@@ -6,17 +6,13 @@ function fitness = RandomForestFitness(params, trainData, trainLabels, validData
     % validLabels: 驗證答案
     % nov: 所選擇的特徵
     % 使用優化後的參數訓練隨機森林模型
-
-    %     if length(unique(nov(4:10))) < 7  % 7是因為有10項，確保第4到第10項不會有相同的數字
-%         return;
-%     end
     numTrees = params(1,1);
     maxDepth = params(1,2);
     minLeafSize = params(1,3);
     %下面會從第四項開始是因為基因演算法在疊代時會將前面三個超參數設定一起綁在所選特徵數裡一起疊代
     %固要跳過前三項從第四項開始
-    tr_trainData=trainData(:,nov(4:end));   %將選擇到的特徵當成訓練集
-    tr_vaildData=validData(:,nov(4:end));   %將選擇到的特徵當成測試集
+    tr_trainData=trainData(:,nov(length(params):end));   %將選擇到的特徵當成訓練集
+    tr_vaildData=validData(:,nov(length(params):end));   %將選擇到的特徵當成測試集
 
     treeBaggerModel = TreeBagger(numTrees, tr_trainData, trainLabels, 'Method', 'regression', ...
         'MaxNumSplits', maxDepth, 'MinLeafSize', minLeafSize);
