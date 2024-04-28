@@ -1,0 +1,6 @@
+ga_mix_tree_answer_Fnc.m:會整理好ga_mix_tree_Fnc出來的歷代資訊
+ga_mix_tree_Fnc.m:主要執行基因演算法的副程式
+gaoutputfunction.m:在ga_mix_tree_Fnc.m輸出疊代資訊的副程式
+gatreeFnc_test.m:使用說明書
+RandomForestFitness.m:隨機森林評分副程式(有額外選特徵ver) 
+RandomForestFitnessBasic.m:隨機森林評分副程式(沒有額外選特徵ver) 

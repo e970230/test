@@ -7,7 +7,7 @@ close all
 feature_dataset=load("feature_dataset_heavy.mat");
 first_data=feature_dataset.feature_dataset;
 % load("answer_for_ga.mat","answer_for_ga")
-answer_for_ga=[849 46 2];
+answer_for_ga=[114 32 5];
 
 
 train_data_all=first_data(:,2:end);
