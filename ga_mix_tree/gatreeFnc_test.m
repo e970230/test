@@ -14,11 +14,11 @@ close all
 tic
 %% 示範案例
 
-% data=load("feature_dataset_heavy.mat");
-% first_data=data.feature_dataset;
+data=load("feature_dataset_heavy.mat");
+first_data=data.feature_dataset;
 
-feature_dataset=load("feature_dataset_top30.mat");
-first_data=feature_dataset.feature_top30.dataset;
+% feature_dataset=load("feature_dataset_top30.mat");
+% first_data=feature_dataset.feature_top30.dataset;
 
 train_data_all=first_data(:,2:end);
 train_data_all_y=first_data(:,1);
@@ -28,8 +28,8 @@ trainData =train_data_all;          % 訓練數據 sample*feature
 trainLabels =train_data_all_y;      % 訓練標籤 sample
 validData = train_data_all;         % 驗證數據 sample*feature
 validLabels = train_data_all_y;     % 驗證標籤 sample
-ga_input=[10 100 0.7];             %基因演算法可供更改的超參數，切記不可空白3個參數都必須輸入(PopulationSize/Generations/CrossoverFraction)
-sample_number=10;                   %選取的特徵數量(若要選取所有特徵則輸入0
+ga_input=[20 1000 0.7];             %基因演算法可供更改的超參數，切記不可空白3個參數都必須輸入(PopulationSize/Generations/CrossoverFraction)
+sample_number=30;                   %選取的特徵數量(若要選取所有特徵則輸入0
 lb_input=[50 5 5];                  %控制隨機森林3個參數的下限(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
 ub_input=[200 50 10];               %控制隨機森林3個參數的上限(森林裡決策樹的數量、每顆樹最大的分割次數、葉節點最小樣本數)
 %由於內部自己寫的outputFnc有將歷代資訊建立在Workspace上(已Population_answer命名)，故這邊ga_mix_tree_Fnc沒有任何輸出即可自動得到解答
