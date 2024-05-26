@@ -1,4 +1,4 @@
-function[] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input ,trainData, trainLabels, validData, validLabels)
+function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,labels,Split_quantity,RF_mode)
 
 % 透過基因演算法(GA)對迴歸型(regression)隨機森林(RF)的超參數(樹數目, 每棵樹最大的分枝次數, 
 % 葉節點最小樣本數)與特徵選擇進行優化; 並根據所給定的訓練數據集(trainData)及對應的標籤(trainLabels),
@@ -13,10 +13,8 @@ function[] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input ,trainData, tra
 %           (numFeats=0: 不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數)
 % lb_input: 欲優化的超參數的搜索範圍的下限; 維度=1*欲優化的超參數數目
 % ub_input: 欲優化的超參數的搜索範圍的上限; 維度=1*欲優化的超參數數目
-% trainData: RF的訓練數據集; 維度=sample數*特徵數
-% trainLabels: trainData對應的標籤(Label); 維度=sample數*1
-% validData:  RF的驗證數據集; 維度=sample數*特徵數
-% validLabels: validData對應的標籤(Label); 維度=sample數*1
+% data: 輸入RF的原數據集； 維度=樣本數*特徵數
+% labels: 輸入RF的原數據集其對應標籤； 維度=樣本數*1
 
 
 % output
@@ -28,7 +26,7 @@ function[] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input ,trainData, tra
 %            gaoutputfunction.m
 
 
-%last modification: 2024/05/07
+%last modification: 2024/05/20
 
 
 
@@ -36,6 +34,9 @@ function[] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input ,trainData, tra
 PopulationSize=ga_input(1);     %族群大小 (染色體數目)
 Generations=ga_input(2);        %疊代次數上限
 CrossoverFraction=ga_input(3);  %交配率
+
+out_regression=strcmp(RF_mode,'regression');
+out_classification=strcmp(RF_mode,'classification');
 
 
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
@@ -51,31 +52,55 @@ intcon=1:numVariables;  %整數變數的數量
 
 
 lb_sample=ones(1,numFeats); %欲由GA挑選的特徵的編號的最低數值
-ub_sample=size(trainData,2)*ones(1,numFeats); %欲由GA挑選的特徵的編號的最高數值
+ub_sample=size(data,2)*ones(1,numFeats); %欲由GA挑選的特徵的編號的最高數值
 lb = [lb_input lb_sample];  %每個設計變數的範圍(下限)
 ub = [ub_input ub_sample];  %每個設計變數的範圍(上限)
 
+indices = crossvalind('Kfold',labels,Split_quantity);   %將對應labels的所有標籤等分成Split_quantity份並給予編號
 
+if out_regression==1
 
-if numFeats==0  %不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數
-
-    % x為ga.m所找到的解 (包含:樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
-    % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
-    % 建立迴歸RF模型, 再透過驗證集(validData)及其對應的標籤(validLabels)計算
-    % 該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
-    fitnessFunction = @(x) RandomForestFitnessBasic(x, trainData, trainLabels, validData, validLabels);
-    disp("演算模式: 採計所有特徵")
-
-else
+    if numFeats==0  %不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數
     
-    % x為ga.m所找到的解 (包含:樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數, GA所挑選的特徵的編號)
-    % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
-    % 使用x所提供的特徵項目建立迴歸RF模型, 再透過驗證集(validData)及其對應的
-    % 標籤(validLabels)計算該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
-    fitnessFunction = @(x) RandomForestFitness(x, trainData, trainLabels, validData, validLabels,x(numParas+1:end));
-    disp("演算模式: 採計GA挑選的 "+ num2str(numFeats) +"個特徵")
+        % x為ga.m所找到的解 (包含:樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+        % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
+        % 建立迴歸RF模型, 再透過驗證集(validData)及其對應的標籤(validLabels)計算
+        % 該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
+        fitnessFunction = @(x) RandomForestFitnessBasic(x,data,labels,Split_quantity,indices,'regression');
+        disp("演算模式: 採計所有特徵")
+    
+    else
+        
+        % x為ga.m所找到的解 (包含:樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數, GA所挑選的特徵的編號)
+        % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
+        % 使用x所提供的特徵項目建立迴歸RF模型, 再透過驗證集(validData)及其對應的
+        % 標籤(validLabels)計算該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
+        fitnessFunction = @(x) RandomForestFitness(x,data,labels,Split_quantity,indices,x(numParas+1:end),'regression');
+        disp("演算模式: 採計GA挑選的 "+ num2str(numFeats) +"個特徵")
+    end
 end
 
+if out_classification==1
+    if numFeats==0  %不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數
+    
+        % x為ga.m所找到的解 (包含:樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+        % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
+        % 建立迴歸RF模型, 再透過驗證集(validData)及其對應的標籤(validLabels)計算
+        % 該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
+        fitnessFunction = @(x) RandomForestFitnessBasic(x,data,labels,Split_quantity,indices,'classification');
+        disp("演算模式: 採計所有特徵")
+    
+    else
+        
+        % x為ga.m所找到的解 (包含:樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數, GA所挑選的特徵的編號)
+        % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
+        % 使用x所提供的特徵項目建立迴歸RF模型, 再透過驗證集(validData)及其對應的
+        % 標籤(validLabels)計算該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
+        fitnessFunction = @(x) RandomForestFitness(x,data,labels,Split_quantity,indices,x(numParas+1:end),'classification');
+        disp("演算模式: 採計GA挑選的 "+ num2str(numFeats) +"個特徵")
+    end
+
+end
 
 
 % 使用GA搜索最優設計變數值
