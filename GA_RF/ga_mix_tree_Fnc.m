@@ -35,8 +35,8 @@ PopulationSize=ga_input(1);     %族群大小 (染色體數目)
 Generations=ga_input(2);        %疊代次數上限
 CrossoverFraction=ga_input(3);  %交配率
 
-out_regression=strcmp(RF_mode,'regression');
-out_classification=strcmp(RF_mode,'classification');
+out_regression=strcmp(RF_mode,'regression');            %進行迴歸型RF分類設定的字串比對
+out_classification=strcmp(RF_mode,'classification');    %進行分類型RF分類設定的字串比對
 
 
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...

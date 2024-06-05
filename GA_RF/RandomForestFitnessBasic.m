@@ -42,10 +42,8 @@ minLeafSize = params(3); %葉節點最小樣本數
 
 if out_regression==1    %若使用為迴歸型RF則建立迴歸型模型
 
-
     for Sq=1:Split_quantity
 
-    
         % 找到選擇的測試數據編號以外的所有數據標籤
         include_indices = (indices ~= Sq);
         
