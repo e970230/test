@@ -1,7 +1,7 @@
 function [fitness] = RandomForestFitness(params,data,labels,Split_quantity,indices, nov,RF_mode)
 % 根據所給定的RF超參數(樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)及資料集(data)
-% 與對應的標籤(labels), 建立迴歸RF模型, 再準備(訓練數據和標籤)以及(驗證數據和標籤)會利用kfold交叉驗證的方式
-% 將數據拆成Split_quantity份計算該RF模型的預測值的MSE(fitness)
+% 與對應的標籤(labels), 建立(迴歸RF模型/分類RF模型), 再準備(訓練數據和標籤)以及(驗證數據和標籤)會利用kfold交叉驗證的方式
+% 將數據拆成Split_quantity份計算該(迴歸RF模型的預測值的MSE(fitness)/分類RF模型的預測值的錯誤率)
 
 % 關於kfold交叉驗證方式說明如下:
 % 假使將數據拆成4份意即對應原數據下的每種對應標籤平分成4份(每種標籤都會平分)
@@ -12,7 +12,7 @@ function [fitness] = RandomForestFitness(params,data,labels,Split_quantity,indic
 % **在RF訓練與預測時, 訓練集與驗證集內只採計所指定的特徵項目(nov)**
 
 
-% last modification: 2024/05/20
+% last modification: 2024/06/10
 
 
 % input
@@ -23,8 +23,10 @@ function [fitness] = RandomForestFitness(params,data,labels,Split_quantity,indic
 % Split_quantity: 將數據集拆分的數量，意即輸入4的話則代表拆成四份數據集
 
 % indices: 由ga_mix_tree_Fnc.m對data進行交叉驗證前的數據拆分的編號集
-% indices: 由Split_quantity設定拆成多少份數據後，將每種不同的labels進行編號分出不同的數據集
+%          由Split_quantity設定拆成多少份數據後，將每種不同的labels進行編號分出不同的數據集
 %          假設將數據集分成四份，期對應的所有標籤都將分配1~4的編號並所有不同標籤都會等分成4份
+% RF_mode: 可以選擇要使用分類型RF(classification)或是迴歸型RF(regression)，只需在使用時將對應的分類
+%          輸入在此就行('regression'/'classification')
 
 % nov: 由GA挑選的特徵的編號索引; 維度=1*特徵數目
 
@@ -39,7 +41,7 @@ numTrees = params(1);    %樹數目
 maxNumSplits = params(2);    %每棵樹最大的分枝次數
 minLeafSize = params(3); %葉節點最小樣本數
 
-if out_regression==1
+if out_regression==1    %字串相符時確認使用迴歸型RF  
 
     for Sq=1:Split_quantity
         
@@ -60,7 +62,7 @@ if out_regression==1
 
     end
 end
-if out_classification==1
+if out_classification==1    %字串相符時確認使用分類型RF 
     for Sq=1:Split_quantity
         
         % 找到選擇的驗證數據編號以外的所有數據標籤

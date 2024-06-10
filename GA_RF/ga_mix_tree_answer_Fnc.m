@@ -3,7 +3,7 @@ function[best_answer,best_score,verify,best_feature_inx] = ga_mix_tree_answer_Fn
 %評判此種超參數設定答案是否會浮動過大
 
 
-% last modification: 2024/05/07
+% last modification: 2024/06/10
 
 
 % input
@@ -14,10 +14,14 @@ function[best_answer,best_score,verify,best_feature_inx] = ga_mix_tree_answer_Fn
 % numFeats: 欲由GA挑選的特徵數量 
 %           (numFeats=0: 不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數)
 % Repeat_verification: 重複建立RF的次數 (重複驗證次數)
-% trainData: RF的訓練數據集; 維度=sample數*特徵數
-% trainLabels: trainData對應的標籤(Label); 維度=sample數*1
-% validData:  RF的驗證數據集; 維度=sample數*特徵數
-% validLabels: validData對應的標籤(Label); 維度=sample數*1
+% data:     輸入RF的原數據集； 維度=樣本數*特徵數
+% labels:   輸入RF的原數據集其對應標籤； 維度=樣本數*1
+% Split_quantity: 將數據集拆分的數量，意即輸入4的話則代表拆成四份數據集
+% indices:  由ga_mix_tree_Fnc.m對data進行交叉驗證前的數據拆分的編號集
+%           由Split_quantity設定拆成多少份數據後，將每種不同的labels進行編號分出不同的數據集
+%           假設將數據集分成四份，期對應的所有標籤都將分配1~4的編號並所有不同標籤都會等分成4份
+% RF_mode:  可以選擇要使用分類型RF(classification)或是迴歸型RF(regression)，只需在使用時將對應的分類
+%           輸入在此就行('regression'/'classification')
 
 
 % output
@@ -49,7 +53,7 @@ if numFeats==0  %不經由GA進行特徵選擇, 即以所有特徵進行建模�
     % design_variables_history(:,end): 紀錄各次疊代中的最優的MSE值
     % best_score_inx: 在design_variables_history中, 所有疊代中的最優解位於第best_score_inx次疊代
     
-    if out_regression==1
+    if out_regression==1    %字串相符時確認使用迴歸型RF 
     
         for i=1:Repeat_verification  %重複建立RF以評估GA找到的最佳超參數所建立模型的預測重現性
     
@@ -61,7 +65,7 @@ if numFeats==0  %不經由GA進行特徵選擇, 即以所有特徵進行建模�
             disp(["第" num2str(i) "次適性值: " num2str(fitness(i))])
         end
     end
-    if out_classification==1
+    if out_classification==1    %字串相符時確認使用分類型RF 
         for i=1:Repeat_verification  %重複建立RF以評估GA找到的最佳超參數所建立模型的預測重現性
     
             best_numTrees = best_params(1);  %最佳超參數: 樹數目
