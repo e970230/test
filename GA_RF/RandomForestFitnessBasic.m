@@ -33,8 +33,8 @@ function [fitness] = RandomForestFitnessBasic(params,data,labels,Split_quantity,
 % fitness: 迴歸型RF模型的預測值的MSE/分類型RF模型的預測值為預測答案之錯誤率
 % 
 
-out_regression=strcmp(RF_mode,'regression');            %判斷模型使用是否為迴歸型
-out_classification=strcmp(RF_mode,'classification');    %判斷模型使用是否為分類型
+out_regression=strcmp(RF_mode,'regression');            %進行迴歸型RF分類設定的字串比對
+out_classification=strcmp(RF_mode,'classification');    %進行分類型RF分類設定的字串比對
 
 numTrees = params(1);    %樹數目
 maxNumSplits = params(2);    %每棵樹最大的分枝次數

@@ -31,8 +31,8 @@ function[best_answer,best_score,verify,best_feature_inx] = ga_mix_tree_answer_Fn
 % verify: 以最佳超參數及特徵重複多次建立RF, 對驗證集的預測值的fitness(MSE值)的平均值, 變異數, 標準差
 % best_feature_inx: 由GA找出的最佳特徵的編號; 維度=1*指定的特徵數目(numFeats); 若不須GA挑選特徵則回傳"[]"
 
-out_regression=strcmp(RF_mode,'regression');
-out_classification=strcmp(RF_mode,'classification');
+out_regression=strcmp(RF_mode,'regression');            %進行迴歸型RF分類設定的字串比對
+out_classification=strcmp(RF_mode,'classification');    %進行分類型RF分類設定的字串比對
 
 if numFeats==0  %不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數
     answer_index=[]; %儲存GA每次疊代時, 最佳(MSE最小)的染色體其位在矩陣Population_answer中的第幾個row; 維度=1*疊代次數
@@ -132,7 +132,7 @@ else
     [~,best_chro_inx]=min(best_itaration(:,end));      %從中找到具有最優MSE值的染色體在族群中的索引編號
     nov=best_itaration(best_chro_inx,4:end-1);   %由GA挑選的特徵的編號; 維度=1*numFeats
     
-    if out_regression==1
+    if out_regression==1    %字串相符時確認使用迴歸型RF
     
         for i=1:Repeat_verification  %重複建立RF以評估GA找到的最佳超參數所建立模型的預測重現性
             best_numTrees = best_params(1);    %最佳超參數: 樹數目
@@ -143,7 +143,7 @@ else
             disp(["第" num2str(i) "次適性值: " num2str(fitness(i))])
         end
     end
-    if out_classification==1
+    if out_classification==1    %字串相符時確認使用分類型RF
         for i=1:Repeat_verification  %重複建立RF以評估GA找到的最佳超參數所建立模型的預測重現性
             best_numTrees = best_params(1);    %最佳超參數: 樹數目
             best_MaxNumSplits= best_params(2);  %最佳超參數: 每棵樹最大的分枝次數
