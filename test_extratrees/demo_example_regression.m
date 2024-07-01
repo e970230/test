@@ -23,10 +23,10 @@ valData.X = X(find(indices==5),:);
 valData.Y = Y(find(indices==5));
 
 % Set the parameters for the MATLAB_ExtraTrees aglorithm
-M    =  2; % Number of Extra_Trees in the ensemble
+M    =  100; % Number of Extra_Trees in the ensemble
 k    =  3;  % Number of attributes selected to perform the random splits 
             % 1 <k <= total number of attributes 
-nmin =  10;  % Minimum number of points for each leaf
+nmin =  2;  % Minimum number of points for each leaf
 
 % Build an ensemble of Extra-Trees and return the predictions on the
 % training dataset.
@@ -35,7 +35,8 @@ nmin =  10;  % Minimum number of points for each leaf
 % Run the ensemble on a validation dataset
 valData.YHAT = predictWithAnEnsemble(ensemble,[valData.X,valData.Y],0);
 
-fitness = mean((valData.YHAT - valData.Y).^2)
+fitness_trdata = mean((trData.YHAT - trData.Y).^2)
+fitness_valdata = mean((valData.YHAT - valData.Y).^2)
 
 % Plot the results
 figure;

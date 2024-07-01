@@ -7,35 +7,31 @@ close all
 
 load("feature_dataset_heavy.mat")
 
-
-% n  = 500;
-% X = randn(n,3);
-% Y = 0.5 * X(:,1) - 0.2 * X(:,2) + 0.1 * X(:,3) + 0.05 * randn(n,1);
+tic
 
 data= feature_dataset(:,2:end);
 label= feature_dataset(:,1);
 
 indices = crossvalind('Kfold',label,5);
 
-% fitness=ET_fit(data,label,5,3,10,indices)
 
 
-
-PopulationSize=5;     %族群大小 (染色體數目)
-Generations=3;        %疊代次數上限
+PopulationSize=10;     %族群大小 (染色體數目)
+Generations=2;        %疊代次數上限
 CrossoverFraction=0.7;  %交配率
 
 options = optimoptions('ga', 'Display', 'iter', 'PopulationSize', PopulationSize, ...
     'Generations',Generations,'CrossoverFraction', CrossoverFraction,'OutputFcn',@gaoutputfunction);
 numVariables=3;
 intcon=1:numVariables;  %整數變數的數量
-lb = [1 1 1 ];  %每個設計變數的範圍(下限)
-ub = [20 20 20];  %每個設計變數的範圍(上限)
+lb = [10 5 2];  %每個設計變數的範圍(下限)
+ub = [20 20 6];  %每個設計變數的範圍(上限)
 
 fitnessFunction = @(x) ET_fit(data,label,x(1),x(2),x(3),indices);
 
 [x,fval] = ga(fitnessFunction, numVariables, [], [], [], [], lb, ub, [],intcon,options);
 
+toc
 
 %遍歷各次疊代的過程
 for pl=1:size(Population_answer,3)  %將最佳解(適性值、最佳的超參數配合)從相對應的疊代裡撈出來

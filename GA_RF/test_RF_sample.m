@@ -5,14 +5,18 @@ clc
 clear
 close all
 
-test_data=load('feature_dataset_top30.mat');
-test_data=test_data.feature_top30;
-test_data=test_data.dataset;
+% test_data=load('feature_dataset_top30.mat');
+% test_data=test_data.feature_top30;
+% test_data=test_data.dataset;
+
+load("feature_dataset_heavy.mat")
+X= feature_dataset(:,2:end);
+Y= feature_dataset(:,1);
 
 Split_quantity=5;
 %% 測試新版的評分機制
-indices = crossvalind('Kfold',test_data(:,1),Split_quantity);
-ans=RandomForestFitnessBasic([10 10 2],test_data(:,2:end),test_data(:,1),Split_quantity,indices,'classification');
+indices = crossvalind('Kfold',Y,Split_quantity);
+ans=RandomForestFitnessBasic([200 20 3],X,Y,Split_quantity,indices,'regression');
 
 
 %% 拆分資料

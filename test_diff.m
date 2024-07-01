@@ -3,19 +3,22 @@
 clc
 clear
 close all
-
+%--------------------------------------------------------------------------
+%創建模擬訊號
 x=1:1000;
 y=0.005*x+0.005;
 
+%添加測試訊號
 y_test=7*ones(1,100);
-
 y(201:300)=y_test;
+y(401:500)=y_test;
 y(701:800)=y_test;
 
-look_diff_y=diff(y);
-positions = find(look_diff_y > 1);
 
-D2=y(positions(1)-50:positions(1)-1);
+[output]=diff_signal(y,30,1);
 
 
+figure(1)
 plot(x,y)
+xlabel('sample')
+ylabel('訊號')
