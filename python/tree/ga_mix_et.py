@@ -1,6 +1,6 @@
 import pygad
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import ExtraTreesRegressor
 import scipy.io
@@ -12,22 +12,28 @@ def fitness_func(ga_instance, solution, solution_idx):
     n_estimators = int(solution[0])                     #樹的數量
     max_features = int(solution[1])                     #分裂時考慮的最大特徵數
     min_samples_split = int(solution[2])                #葉節點最小樣本數
+    all_mse = []
+    for train_index, test_index in kf.split(data):
+        X_train, X_test = data[train_index], data[test_index]
+        y_train, y_test = label[train_index], label[test_index]
+        
+        # 創建 ExtraTreesRegressor 模型
+        model = ExtraTreesRegressor(n_estimators=n_estimators,
+                                    max_features=max_features,
+                                    min_samples_split=min_samples_split,
+                                    random_state=42)
 
-    # 創建 ExtraTreesRegressor 模型
-    model = ExtraTreesRegressor(n_estimators=n_estimators,
-                                max_features=max_features,
-                                min_samples_split=min_samples_split,
-                                random_state=42)
+        # 使用模型進行預測
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
 
-    # 使用模型進行預測
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-
-    # 計算預測答案和原始標籤之MSE值
-    mse = mean_squared_error(y_test, y_pred)
-
+        # 計算預測答案和原始標籤之MSE值
+        mse = mean_squared_error(y_test, y_pred)
+        all_mse.append(mse)
+    
+    final_mse_mean = np.mean(all_mse, axis=0)
     # 取負的MSE找其最大值
-    return -mse
+    return -final_mse_mean
 
 
 #額外顯示當次疊代當前fitness
@@ -35,7 +41,6 @@ def on_generation(ga_instance):
     print(f"第 {ga_instance.generations_completed} 代")
     print(f"最佳適應度值： {ga_instance.best_solution()[1]}")
     print("")
-
 
 
 mat = scipy.io.loadmat('feature_dataset_heavy.mat')
@@ -47,15 +52,14 @@ data = feature_dataset[:, 1:]  # 擷取原數據的特徵，第0列為標籤所�
 label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0列
 
 
-#將數據百分之20做為測試集百分之80做為訓練集
-X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.20)
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
 
 
 start_time = time.time()
 
 
 # 設定基因演算法參數
-num_generations = 300       #基因演算法疊代次數
+num_generations = 1000       #基因演算法疊代次數
 num_parents_mating = 5      #每代選多少個染色體進行交配
 sol_per_pop = 20            #染色體數量
 num_genes = 3               #求解的數量
@@ -69,19 +73,19 @@ gene_space = [
 
 # 基因演算法模型超參數細部設定
 ga_instance = pygad.GA(
-    num_generations=num_generations,                #基因演算法疊代次數
-    num_parents_mating=num_parents_mating,          #每代選多少個染色體進行交配
-    fitness_func=fitness_func,                      #定義適應度函數
-    sol_per_pop=sol_per_pop,                        #染色體數量
-    num_genes=num_genes,                            #求解的數量
-    gene_space=gene_space,                          #各個染色體範圍設置
-    gene_type=int,                                  #每次疊代時基因演算法會以整數進行嘗試
-    parent_selection_type="rank",                   #選擇染色體方式依據排名來選擇
-    crossover_type="single_point",                  #單點交配
-    mutation_type="random",                         #隨機突變
-    mutation_probability=0.3,                       #突變率
-    on_generation=on_generation,                    #每次疊代資訊顯示
-    save_solutions=True                             #儲存每次疊代解答
+                       num_generations=num_generations,                #基因演算法疊代次數
+                       num_parents_mating=num_parents_mating,          #每代選多少個染色體進行交配
+                       fitness_func=fitness_func,                      #定義適應度函數
+                       sol_per_pop=sol_per_pop,                        #染色體數量
+                       num_genes=num_genes,                            #求解的數量
+                       gene_space=gene_space,                          #各個染色體範圍設置
+                       gene_type=int,                                  #每次疊代時基因演算法會以整數進行嘗試
+                       parent_selection_type="rank",                   #選擇染色體方式依據排名來選擇
+                       crossover_type="single_point",                  #單點交配
+                       mutation_type="random",                         #隨機突變
+                       mutation_probability=0.3,                       #突變率
+                       on_generation=on_generation,                    #每次疊代資訊顯示
+                       save_solutions=True                             #儲存每次疊代解答
 )
 
 # 執行基因演算法
