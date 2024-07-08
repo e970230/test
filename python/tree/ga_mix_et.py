@@ -12,7 +12,7 @@ def fitness_func(ga_instance, solution, solution_idx):
     n_estimators = int(solution[0])                     #樹的數量
     max_features = int(solution[1])                     #分裂時考慮的最大特徵數
     min_samples_split = int(solution[2])                #葉節點最小樣本數
-    data = feature_dataset[:, solution[3:]]        # 擷取原數據的特徵，
+    data = feature_dataset[:, solution[3:]]             # 擷取原數據的特徵，
     all_mse = []
     for train_index, test_index in kf.split(data):
         X_train, X_test = data[train_index], data[test_index]
@@ -71,7 +71,7 @@ start_time = time.time()
 num_generations = 300       #基因演算法疊代次數
 num_parents_mating = 5      #每代選多少個染色體進行交配
 sol_per_pop = 20            #染色體數量
-num_params = 30
+num_params = 30             #選擇的特徵
 num_genes = 3 + num_params               #求解的數量
 
 
