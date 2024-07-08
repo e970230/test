@@ -37,7 +37,8 @@ def fitness_func(ga_instance, solution, solution_idx):
     return -final_mse_mean
 
 
-def generate_dynamic_gene_space(num_params):
+def generate_dynamic_gene_space(num_params,init_data):
+    Dimensions = np.shape(init_data)
     predefined_ranges = []
     for _ in range(num_params):
         low = 1
@@ -59,7 +60,6 @@ feature_dataset = mat['feature_dataset']
 
 init_data = feature_dataset[:, 1:]  # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0列
-Dimensions = np.shape(init_data)
 
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
 
@@ -68,10 +68,10 @@ start_time = time.time()
 
 
 # 設定基因演算法參數
-num_generations = 300       #基因演算法疊代次數
+num_generations = 3       #基因演算法疊代次數
 num_parents_mating = 5      #每代選多少個染色體進行交配
 sol_per_pop = 20            #染色體數量
-num_params = 30
+num_params = 30             #選擇的特徵數量
 num_genes = 3 + num_params               #求解的數量
 
 
@@ -82,9 +82,9 @@ gene_space = [
     {'low': 2, 'high': 20}     # min_samples_split
 ]
 
-gene_space_next = generate_dynamic_gene_space(num_params)
+gene_feature_space = generate_dynamic_gene_space(num_params,init_data)
 
-final_gene_space = gene_space + gene_space_next
+final_gene_space = gene_space + gene_feature_space
 
 # 基因演算法模型超參數細部設定
 ga_instance = pygad.GA(
@@ -112,10 +112,14 @@ solution, solution_fitness, solution_idx = ga_instance.best_solution()
 end_time = time.time()
 elapsed_time = end_time - start_time                #顯示運行時間
 print("Elapsed Time: %.2f seconds" % elapsed_time)
-print("最佳解:", solution)
+print("最佳樹的數量:", solution[0])
+print("最佳分裂時考慮的最大特徵數:", solution[1])
+print("最佳葉節點最小樣本數:", solution[2])
+print("最佳選擇特徵:", solution[3:])
 print("最佳解的適應度值:", solution_fitness)
 
 # 繪製適應度趨勢圖
+'''
 plt.figure(figsize=(10, 6))
 plt.plot(ga_instance.best_solutions_fitness, color='blue', linestyle='--', marker='o', label='Best Solution Fitness')
 plt.title('GA Fitness Evolution Over Generations', fontsize=16)
@@ -124,3 +128,27 @@ plt.ylabel('Fitness', fontsize=14)
 plt.grid(True)
 plt.legend(fontsize=12)
 plt.show()
+'''
+
+#-------------------------------------------測試答案階段---------------------------------------
+#KFold隨機種子設定為21時
+test_data = feature_dataset[:, solution[3:]]
+label = feature_dataset[:, 0]
+all_mse = []
+test_kf = KFold(n_splits=5, shuffle=True, random_state=21)
+for train_index_test_ver, test_index_test_ver in test_kf.split(test_data):
+        X_train, X_test = test_data[train_index_test_ver], test_data[test_index_test_ver]
+        y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
+        test_model = ExtraTreesRegressor(n_estimators=solution[0],
+                                    max_features=solution[1],
+                                    min_samples_split=solution[2],
+                                    random_state=42)
+        test_model.fit(X_train, y_train)
+        y_pred = test_model.predict(X_test)
+        # 計算預測答案和原始標籤之MSE值
+        mse = mean_squared_error(y_test, y_pred)
+        all_mse.append(mse)
+
+final_mse_mean = np.mean(all_mse, axis=0)
+
+print("預測模型驗證MSE值:",final_mse_mean)
