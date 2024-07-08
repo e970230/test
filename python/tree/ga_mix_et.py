@@ -7,13 +7,27 @@ import scipy.io
 import time
 import matplotlib.pyplot as plt
 
+# 此為透過使用pygad的基因演算法對sklearn的ExtraTreesRegressor進行超參數優化來使預測結果更精準
+# 在使用時須先注意若要運行此程式需先import下列模組才能使用，當下測試模組版本和python版本會記錄下來做為參考
+#    測試運行當下python版本為 3.11.2
+#    1. pygad(3.3.1)
+#    2. numpy(1.26.4)
+#    3. sklearn(1.5.0)
+#    4. scipy(1.14.0)
+#    5. matplotlib(3.9.0)
+# 對於輸入數據之要求須注意維度必須是(樣本*特徵)的格式
+
+
+# 最後修改時間:2024/7/8 10:35
+
+#-------------------------------------------定義副函式區域---------------------------------------
 # 定義適應度函數
 def fitness_func(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, solution[3:]]        # 擷取原數據共num_params個特徵，
+    data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
     all_mse = []
     for train_index, test_index in kf.split(data):
-        X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過
-        y_train, y_test = label[train_index], label[test_index]
+        X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
+        y_train, y_test = label[train_index], label[test_index]             #將標籤拆分成訓練標籤和測試標籤，並透過Kfold交叉驗證方式進行區分
         
         # 創建 ExtraTreesRegressor 模型
         model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
@@ -22,8 +36,8 @@ def fitness_func(ga_instance, solution, solution_idx):
                                     random_state=42)
 
         # 使用模型進行預測
-        model.fit(X_train, y_train)         #訓練模型
-        y_pred = model.predict(X_test)      #預測解答
+        model.fit(X_train, y_train)                 #訓練模型
+        y_pred = model.predict(X_test)              #預測解答
 
         # 計算預測答案和原始標籤之MSE值
         mse = mean_squared_error(y_test, y_pred)    #計算MSE值
@@ -36,9 +50,9 @@ def fitness_func(ga_instance, solution, solution_idx):
 #定義擷取特徵數量函數
 def generate_dynamic_gene_space(num_params,init_data):
     Dimensions = np.shape(init_data)                #檢測數據的維度大小
-    predefined_ranges = []                          #創建關於選擇特徵的基因上下限設定空矩陣
+    predefined_ranges = []                          #創建關於選擇特徵的基因上下限設定之矩陣
     for _ in range(num_params):
-        predefined_ranges.append({'low': 1, 'high': Dimensions[1]})
+        predefined_ranges.append({'low': 1, 'high': Dimensions[1]})     #根據設定所求選擇特徵之數量創建下限為1上限為矩陣特徵上限之字串設定
     return predefined_ranges
 
 #額外顯示當次疊代當前fitness
@@ -48,38 +62,37 @@ def on_generation(ga_instance):
     print("")
 
 
+#-------------------------------------------主要運行程式區域---------------------------------------
+
+#讀取檔案
 mat = scipy.io.loadmat('feature_dataset_heavy.mat')
-
-feature_dataset = mat['feature_dataset']
-
-
-init_data = feature_dataset[:, 1:]  # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
-label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0列
-
-kf = KFold(n_splits=5, shuffle=True, random_state=None)
+feature_dataset = mat['feature_dataset']            #此原數據之輸入要求為樣本*特徵
 
 
-start_time = time.time()
+init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
+label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
+kf = KFold(n_splits=5, shuffle=True, random_state=None)     #設定Kfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
 # 設定基因演算法參數
-num_generations = 3       #基因演算法疊代次數
-num_parents_mating = 5      #每代選多少個染色體進行交配
-sol_per_pop = 20            #染色體數量
-num_params = 30             #選擇的特徵數量
-num_genes = 3 + num_params               #求解的數量
+num_generations = 300                   #基因演算法疊代次數
+num_parents_mating = 5                  #每代選多少個染色體進行交配
+sol_per_pop = 20                        #染色體數量
+num_params = 30                         #選擇的特徵數量
+num_genes = 3 + num_params              #求解的數量
 
 
 # 各個染色體範圍設置
 gene_space = [
     {'low': 10, 'high': 300},  # n_estimators
-    {'low': 1, 'high': 30},    # max_features
-    {'low': 2, 'high': 20}     # min_samples_split
+    {'low': 1, 'high': 40},    # max_features
+    {'low': 2, 'high': 30}     # min_samples_split
 ]
 
-gene_feature_space = generate_dynamic_gene_space(num_params,init_data)
-
-final_gene_space = gene_space + gene_feature_space
+                                               
+gene_feature_space = generate_dynamic_gene_space(num_params,init_data)      #透過自訂義函數創建關於選擇特徵的基因上下限設定之矩陣
+#輸入參數(想選擇的特徵數量，原數據本身==>用於觀測原數據之特徵數量上限)
+final_gene_space = gene_space + gene_feature_space                          #將設定基礎極限樹之模型上下限和選擇特徵的基因上下限統整再一起
 
 # 基因演算法模型超參數細部設定
 ga_instance = pygad.GA(
@@ -95,8 +108,10 @@ ga_instance = pygad.GA(
                        mutation_type="random",                         #隨機突變
                        mutation_probability=0.3,                       #突變率
                        on_generation=on_generation,                    #每次疊代資訊顯示
-                       save_solutions=False                             #儲存每次疊代解答
+                       save_solutions=False                            #儲存每次疊代解答之設定
 )
+
+start_time = time.time()
 
 # 執行基因演算法
 ga_instance.run()
@@ -116,8 +131,7 @@ print("最佳解的適應度值:", solution_fitness)
 
 
 
-#-------------------------------------------測試答案階段---------------------------------------
-#KFold隨機種子設定為21時
+#-------------------------------------------測試答案階段區域---------------------------------------
 test_data = feature_dataset[:, solution[3:]]
 label = feature_dataset[:, 0]
 all_mse = []
