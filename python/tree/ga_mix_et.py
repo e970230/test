@@ -9,41 +9,36 @@ import matplotlib.pyplot as plt
 
 # 定義適應度函數
 def fitness_func(ga_instance, solution, solution_idx):
-    n_estimators = int(solution[0])                     #樹的數量
-    max_features = int(solution[1])                     #分裂時考慮的最大特徵數
-    min_samples_split = int(solution[2])                #葉節點最小樣本數
-    data = feature_dataset[:, solution[3:]]        # 擷取原數據的特徵，
+    data = feature_dataset[:, solution[3:]]        # 擷取原數據共num_params個特徵，
     all_mse = []
     for train_index, test_index in kf.split(data):
-        X_train, X_test = data[train_index], data[test_index]
+        X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過
         y_train, y_test = label[train_index], label[test_index]
         
         # 創建 ExtraTreesRegressor 模型
-        model = ExtraTreesRegressor(n_estimators=n_estimators,
-                                    max_features=max_features,
-                                    min_samples_split=min_samples_split,
+        model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
+                                    max_features=int(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
+                                    min_samples_split=int(solution[2]),     #將第三個解作為葉節點最小樣本數
                                     random_state=42)
 
         # 使用模型進行預測
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
+        model.fit(X_train, y_train)         #訓練模型
+        y_pred = model.predict(X_test)      #預測解答
 
         # 計算預測答案和原始標籤之MSE值
-        mse = mean_squared_error(y_test, y_pred)
-        all_mse.append(mse)
+        mse = mean_squared_error(y_test, y_pred)    #計算MSE值
+        all_mse.append(mse)                         #將當次MSE值記錄下來
     
-    final_mse_mean = np.mean(all_mse, axis=0)
+    final_mse_mean = np.mean(all_mse, axis=0)       #將所有記錄下來的MSE值進行平均
     # 取負的MSE找其最大值
     return -final_mse_mean
 
-
+#定義擷取特徵數量函數
 def generate_dynamic_gene_space(num_params,init_data):
-    Dimensions = np.shape(init_data)
-    predefined_ranges = []
+    Dimensions = np.shape(init_data)                #檢測數據的維度大小
+    predefined_ranges = []                          #創建關於選擇特徵的基因上下限設定空矩陣
     for _ in range(num_params):
-        low = 1
-        high = Dimensions[1]
-        predefined_ranges.append({'low': low, 'high': high})
+        predefined_ranges.append({'low': 1, 'high': Dimensions[1]})
     return predefined_ranges
 
 #額外顯示當次疊代當前fitness
@@ -61,7 +56,7 @@ feature_dataset = mat['feature_dataset']
 init_data = feature_dataset[:, 1:]  # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0列
 
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
+kf = KFold(n_splits=5, shuffle=True, random_state=None)
 
 
 start_time = time.time()
@@ -93,14 +88,14 @@ ga_instance = pygad.GA(
                        fitness_func=fitness_func,                      #定義適應度函數
                        sol_per_pop=sol_per_pop,                        #染色體數量
                        num_genes=num_genes,                            #求解的數量
-                       gene_space=final_gene_space,                          #各個染色體範圍設置
+                       gene_space=final_gene_space,                    #各個染色體範圍設置
                        gene_type=int,                                  #每次疊代時基因演算法會以整數進行嘗試
                        parent_selection_type="rank",                   #選擇染色體方式依據排名來選擇
                        crossover_type="single_point",                  #單點交配
                        mutation_type="random",                         #隨機突變
                        mutation_probability=0.3,                       #突變率
                        on_generation=on_generation,                    #每次疊代資訊顯示
-                       save_solutions=True                             #儲存每次疊代解答
+                       save_solutions=False                             #儲存每次疊代解答
 )
 
 # 執行基因演算法
@@ -118,24 +113,15 @@ print("最佳葉節點最小樣本數:", solution[2])
 print("最佳選擇特徵:", solution[3:])
 print("最佳解的適應度值:", solution_fitness)
 
-# 繪製適應度趨勢圖
-'''
-plt.figure(figsize=(10, 6))
-plt.plot(ga_instance.best_solutions_fitness, color='blue', linestyle='--', marker='o', label='Best Solution Fitness')
-plt.title('GA Fitness Evolution Over Generations', fontsize=16)
-plt.xlabel('Generation', fontsize=14)
-plt.ylabel('Fitness', fontsize=14)
-plt.grid(True)
-plt.legend(fontsize=12)
-plt.show()
-'''
+
+
 
 #-------------------------------------------測試答案階段---------------------------------------
 #KFold隨機種子設定為21時
 test_data = feature_dataset[:, solution[3:]]
 label = feature_dataset[:, 0]
 all_mse = []
-test_kf = KFold(n_splits=5, shuffle=True, random_state=21)
+test_kf = KFold(n_splits=5, shuffle=True, random_state=None)
 for train_index_test_ver, test_index_test_ver in test_kf.split(test_data):
         X_train, X_test = test_data[train_index_test_ver], test_data[test_index_test_ver]
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
@@ -152,3 +138,15 @@ for train_index_test_ver, test_index_test_ver in test_kf.split(test_data):
 final_mse_mean = np.mean(all_mse, axis=0)
 
 print("預測模型驗證MSE值:",final_mse_mean)
+
+
+# 繪製適應度趨勢圖
+
+plt.figure(figsize=(10, 6))
+plt.plot(ga_instance.best_solutions_fitness, color='blue', linestyle='--', marker='o', label='Best Solution Fitness')
+plt.title('GA Fitness Evolution Over Generations', fontsize=16)
+plt.xlabel('Generation', fontsize=14)
+plt.ylabel('Fitness', fontsize=14)
+plt.grid(True)
+plt.legend(fontsize=12)
+plt.show()
