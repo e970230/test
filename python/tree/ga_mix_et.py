@@ -72,7 +72,7 @@ feature_dataset = mat['feature_dataset']            #此原數據之輸入要求
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
+skf = StratifiedKFold(n_splits=5, shuffle=False, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
 # 設定基因演算法參數
 num_generations = 300                   #基因演算法疊代次數
@@ -135,7 +135,7 @@ print("最佳解的適應度值:", solution_fitness)
 test_data = feature_dataset[:, solution[3:]]
 label = feature_dataset[:, 0]
 all_mse = []
-test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
+test_skf = StratifiedKFold(n_splits=5, shuffle=False, random_state=None)
 for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label):
         X_train, X_test = test_data[train_index_test_ver], test_data[test_index_test_ver]
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
