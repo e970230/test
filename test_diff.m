@@ -14,9 +14,7 @@ y(201:300)=y_test;
 y(401:500)=y_test;
 y(701:800)=y_test;
 
-
-[output]=diff_signal(y,30,1);
-
+[output]=diff_signal(y,30,0.1);
 
 figure(1)
 plot(x,y)

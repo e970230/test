@@ -9,10 +9,16 @@ function [output]=diff_signal(signal,find_num,threshold)
 % output:處理完的訊號(訊號*起伏數量)，亦即若今天訊號起伏處為三處且想取得這三處
 %        前30個資料點之對應訊號，則此輸出矩陣大小為30*3
 
-%最後修改日期 : 06/30
+% 07/09:增加正規化功能
+% 注意:請時刻注意數據中的差值是否符合需求，請著重觀察數據的門檻值是否能區分想要的解答。
 
-look_diff_signal=diff(signal);                   %找尋前後差值
-positions = find(look_diff_signal > threshold);  %將差值大於門檻值之位置找出
+
+%最後修改日期 : 07/09
+
+
+normalized_signal = normalize(signal, 'range');             %將數據正規化到 [0, 1] 範圍內
+look_diff_signal=diff(normalized_signal);                   %找尋前後差值
+positions = find(look_diff_signal > threshold);             %將差值大於門檻值之位置找出
 
 for i=1:length(positions)
     %透過剛剛找出的位置將所需訊號提取出來

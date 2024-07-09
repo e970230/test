@@ -1,6 +1,6 @@
 import pygad
 import numpy as np
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import ExtraTreesRegressor
 import scipy.io
@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 def fitness_func(ga_instance, solution, solution_idx):
     data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
     all_mse = []
-    for train_index, test_index in kf.split(data):
+    for train_index, test_index in skf.split(data,label):
         X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
         y_train, y_test = label[train_index], label[test_index]             #將標籤拆分成訓練標籤和測試標籤，並透過Kfold交叉驗證方式進行區分
         
@@ -72,10 +72,10 @@ feature_dataset = mat['feature_dataset']            #此原數據之輸入要求
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
-kf = KFold(n_splits=5, shuffle=True, random_state=None)     #設定Kfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
 # 設定基因演算法參數
-num_generations = 1000                   #基因演算法疊代次數
+num_generations = 300                   #基因演算法疊代次數
 num_parents_mating = 5                  #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
 num_params = 30                         #選擇的特徵數量
@@ -135,8 +135,8 @@ print("最佳解的適應度值:", solution_fitness)
 test_data = feature_dataset[:, solution[3:]]
 label = feature_dataset[:, 0]
 all_mse = []
-test_kf = KFold(n_splits=5, shuffle=True, random_state=None)
-for train_index_test_ver, test_index_test_ver in test_kf.split(test_data):
+test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
+for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label):
         X_train, X_test = test_data[train_index_test_ver], test_data[test_index_test_ver]
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
         test_model = ExtraTreesRegressor(n_estimators=solution[0],
