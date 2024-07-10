@@ -108,10 +108,10 @@ FeatureData_label=Data(:,1);  %特徵資料集對應的標籤資料; 維度=samp
 
 
 Split_quantity=5;       %利用k-fold平分數據之數量
-ga_input=[10 300 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
+ga_input=[10 1000 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
 numFeats=30;   %欲由GA挑選的特徵數量
-lb_input=[50 5 5];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
-ub_input=[100 50 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+lb_input=[10 3 3];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+ub_input=[300 40 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
 
 
 
@@ -119,7 +119,7 @@ tic
 
 % 由於在ga_mix_tree_Fnc.m中已定義ga的'OutputFcn'為自訂的gaoutputfunction.m, 
 % 其可將ga疊代過程的資訊儲存於Workspace(變數名稱: Population_answer), 故ga_mix_tree_Fnc.m毋須設定輸出即可獲得解答
-[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'regression');
+[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'regression',1);
 %Population_answer為ga_mix_tree_Fnc運算完後自動整理出的歷史疊代資訊
 
 
