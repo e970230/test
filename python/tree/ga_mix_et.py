@@ -189,7 +189,6 @@ final_mse_mean = np.mean(all_mse, axis=0)
 
 print("預測模型驗證MSE值:",final_mse_mean)
 
-breakpoint()
 # 繪製適應度趨勢圖
 
 plt.figure(figsize=(10, 6))
