@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 # 此為透過使用pygad的基因演算法對sklearn的ExtraTreesRegressor進行超參數優化來使預測結果更精準
 # 在使用時須先注意若要運行此程式需先import下列模組才能使用，當下測試模組版本和python版本會記錄下來做為參考
+# 此為kfold驗證方法1: 再拆分資料時故意將某一預標籤整體作為測試資料不讓他測試，藉此對整體模型進行壓力測試
 #    測試運行當下python版本為 3.11.2
 #    1. pygad(3.3.1)
 #    2. numpy(1.26.4)
@@ -74,10 +75,10 @@ feature_dataset = mat['feature_dataset']            #此原數據之輸入要求
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
-unique_numbers = np.unique(label)
+unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 1000                   #基因演算法疊代次數
+num_generations = 3                   #基因演算法疊代次數
 num_parents_mating = 10                  #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
 num_params = 30                         #選擇的特徵數量
