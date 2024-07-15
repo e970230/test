@@ -50,7 +50,7 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
     return -final_mse_mean
 
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
+    data = feature_dataset[:, 1:]                                 # 擷取原數據共num_params個特徵，
     all_mse = []
     for train_index, test_index in skf.split(data,label):
         X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
@@ -99,10 +99,16 @@ def on_generation(ga_instance):
 
 
 #-------------------------------------------主要運行程式區域---------------------------------------
-
+'''
 #讀取檔案
 mat = scipy.io.loadmat('feature_dataset_heavy.mat')
 feature_dataset = mat['feature_dataset']            #此原數據之輸入要求為樣本*特徵
+
+'''
+mat = scipy.io.loadmat('feature_dataset_top30.mat')
+
+feature_dataset = mat['Data']
+
 
 
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
@@ -116,7 +122,7 @@ unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來
 num_generations = 300                   #基因演算法疊代次數
 num_parents_mating = 5                  #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
-num_params = 30                         #選擇的特徵數量
+num_params = 0                         #選擇的特徵數量
 num_genes = 3 + num_params              #求解的數量
 
 
@@ -168,7 +174,7 @@ print("最佳解的適應度值:", solution_fitness)
 
 
 #-------------------------------------------測試答案階段區域---------------------------------------
-test_data = feature_dataset[:, solution[3:]]
+test_data = feature_dataset[:, 1:]
 label = feature_dataset[:, 0]
 all_mse = []
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)

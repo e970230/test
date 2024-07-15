@@ -19,9 +19,9 @@ def generate_all_or_number(num_params,gene_space):
     return final_gene_space
 
 
-mat = scipy.io.loadmat('feature_dataset_heavy.mat')
+mat = scipy.io.loadmat('feature_dataset_top30.mat')
 
-feature_dataset = mat['feature_dataset']
+feature_dataset = mat['Data']
 
 test = np.array([1,2,3,5,7,10])
 
