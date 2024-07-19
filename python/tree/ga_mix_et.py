@@ -26,16 +26,17 @@ import matplotlib.pyplot as plt
 def fitness_func_method_one(ga_instance, solution, solution_idx):
     data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
     all_mse = []
+# 創建 ExtraTreesRegressor 模型
+    model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
+                                max_features=int(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
+                                min_samples_split=int(solution[2]),     #將第三個解作為葉節點最小樣本數
+                                random_state=42)
     for fold in unique_numbers:
         
         X_train, X_test = data[np.where(label != fold)[0]], data[np.where(label == fold)[0]]
         y_train, y_test = label[np.where(label != fold)[0]], label[np.where(label == fold)[0]]
 
-        # 創建 ExtraTreesRegressor 模型
-        model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
-                                    max_features=int(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
-                                    min_samples_split=int(solution[2]),     #將第三個解作為葉節點最小樣本數
-                                    random_state=42)
+        
 
         # 使用模型進行預測
         model.fit(X_train, y_train)                 #訓練模型
@@ -52,16 +53,15 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
 def fitness_func_method_two(ga_instance, solution, solution_idx):
     data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
     all_mse = []
+    # 創建 ExtraTreesRegressor 模型
+    model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
+                                max_features=int(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
+                                min_samples_split=int(solution[2]),     #將第三個解作為葉節點最小樣本數
+                                random_state=42)
     for train_index, test_index in skf.split(data,label):
         X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
         y_train, y_test = label[train_index], label[test_index]             #將標籤拆分成訓練標籤和測試標籤，並透過Kfold交叉驗證方式進行區分
         
-        # 創建 ExtraTreesRegressor 模型
-        model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
-                                    max_features=int(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
-                                    min_samples_split=int(solution[2]),     #將第三個解作為葉節點最小樣本數
-                                    random_state=42)
-
         # 使用模型進行預測
         model.fit(X_train, y_train)                 #訓練模型
         y_pred = model.predict(X_test)              #預測解答
