@@ -175,7 +175,7 @@ print("最佳解的適應度值:", solution_fitness)
 test_data = feature_dataset[:, solution[3:]]
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
-'''
+all_mse = []
 for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label):
         X_train, X_test = test_data[train_index_test_ver], test_data[test_index_test_ver]
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
@@ -188,23 +188,8 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
         # 計算預測答案和原始標籤之MSE值
         mse = mean_squared_error(y_test, y_pred)
         all_mse.append(mse)
-'''
 
-all_mse = [
-    mean_squared_error(
-        label[test_index],
-        ExtraTreesRegressor(
-            n_estimators=solution[0],
-            max_features=solution[1],
-            min_samples_split=solution[2],
-            random_state=42
-        ).fit(
-            test_data[train_index],
-            label[train_index]
-        ).predict(test_data[test_index])
-    )
-    for train_index, test_index in test_skf.split(test_data, label)
-]
+
 
 
 final_mse_mean = np.mean(all_mse, axis=0)
