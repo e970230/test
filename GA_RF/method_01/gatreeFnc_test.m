@@ -108,7 +108,7 @@ FeatureData=Data(:,2:end);    %特徵資料集; 維度=sample數*特徵數
 FeatureData_label=Data(:,1);  %特徵資料集對應的標籤資料; 維度=sample數*1
 
 
-Split_quantity=5;       %利用k-fold平分數據之數量
+Split_quantity=7;       %利用k-fold平分數據之數量
 ga_input=[10 1000 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
 numFeats=30;   %欲由GA挑選的特徵數量
 lb_input=[10 3 3];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
