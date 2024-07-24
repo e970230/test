@@ -113,10 +113,10 @@ skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sK
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 3                   #基因演算法疊代次數
+num_generations = 1000                   #基因演算法疊代次數
 num_parents_mating = 5                  #每代選多少個染色體進行交配
-sol_per_pop = 10                        #染色體數量
-num_params = 50                         #選擇的特徵數量
+sol_per_pop = 20                        #染色體數量
+num_params = 30                         #選擇的特徵數量
 num_genes = 4 + num_params              #求解的數量
 
 
