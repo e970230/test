@@ -50,7 +50,7 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
     # 創建 XGBRegressor 模型
     model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
                              max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=int(solution[2] * 0.01),              #將第三個解作為學習率
+                             learning_rate=(solution[2] * 0.01),              #將第三個解作為學習率
                              booster='gbtree',
                              min_child_weight=int(solution[3]),
                              random_state=42)
