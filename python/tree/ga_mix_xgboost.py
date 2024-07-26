@@ -177,7 +177,7 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
         test_model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
                              max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=int(solution[2] * 0.01),              #將第三個解作為學習率
+                             learning_rate=(solution[2] * 0.01),              #將第三個解作為學習率
                              booster='gbtree',
                              min_child_weight=int(solution[3]),
                              random_state=42)
