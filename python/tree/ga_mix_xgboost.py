@@ -45,14 +45,14 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
             return -np.inf,  # 返回一個極小值表示無效解決方案
 '''
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, solution[4:]]                                 # 擷取原數據共num_params個特徵，
+    data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
     all_mse = []
     # 創建 XGBRegressor 模型
     model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
                              max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=(solution[2] * 0.01),              #將第三個解作為學習率
+                             learning_rate=1,              #將第三個解作為學習率
                              booster='gbtree',
-                             min_child_weight=int(solution[3]),
+                             min_child_weight=int(solution[2]),
                              random_state=42)
     for train_index, test_index in skf.split(data,label):
         X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
@@ -113,18 +113,17 @@ skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sK
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 1000                   #基因演算法疊代次數
+num_generations = 1                   #基因演算法疊代次數
 num_parents_mating = 5                  #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
 num_params = 30                         #選擇的特徵數量
-num_genes = 4 + num_params              #求解的數量
+num_genes = 3 + num_params              #求解的數量
 
 
 # 各個染色體範圍設置
 gene_space = [
     {'low': 10, 'high': 400},  # n_estimators
     {'low': 1, 'high': 100},    # max_depth
-    {'low': 1, 'high': 100}, # learning_rate
     {'low': 1, 'high': 30},
 ]
 
@@ -161,14 +160,13 @@ elapsed_time = end_time - start_time                #顯示運行時間
 print("Elapsed Time: %.2f seconds" % elapsed_time)
 print("最佳樹的數量:", solution[0])
 print("最佳樹的最大深度:", solution[1])
-print("最佳學習率:", solution[2])
-print("最佳葉節點最小權重和:", solution[3])
-print("最佳選擇特徵:", solution[4:])
+print("最佳葉節點最小權重和:", solution[2])
+print("最佳選擇特徵:", np.sort(solution[3:]))
 print("最佳解的適應度值:", solution_fitness)
 
 
 #-------------------------------------------測試答案階段區域 two---------------------------------------
-test_data = feature_dataset[:, solution[4:]]
+test_data = feature_dataset[:, solution[3:]]
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 all_mse = []
@@ -177,9 +175,9 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
         test_model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
                              max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=(solution[2] * 0.01),              #將第三個解作為學習率
+                             learning_rate=1,              #將第三個解作為學習率
                              booster='gbtree',
-                             min_child_weight=int(solution[3]),
+                             min_child_weight=int(solution[2]),
                              random_state=42)
         test_model.fit(X_train, y_train)
         y_pred = test_model.predict(X_test)
