@@ -50,7 +50,7 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
     # 創建 XGBRegressor 模型
     model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
                              max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=1,              #將第三個解作為學習率
+                             learning_rate=0.3,              #將第三個解作為學習率
                              booster='gbtree',
                              min_child_weight=int(solution[2]),
                              random_state=42)
@@ -113,7 +113,7 @@ skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sK
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 1                   #基因演算法疊代次數
+num_generations = 300                   #基因演算法疊代次數
 num_parents_mating = 5                  #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
 num_params = 30                         #選擇的特徵數量
@@ -175,7 +175,7 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
         test_model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
                              max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=1,              #將第三個解作為學習率
+                             learning_rate=0.3,              #將第三個解作為學習率
                              booster='gbtree',
                              min_child_weight=int(solution[2]),
                              random_state=42)
@@ -192,7 +192,11 @@ verify_mse = {er_label: mean_squared_error(y_test[y_test == er_label], y_pred[y_
 
 # 輸出每個標籤的mse值
 for er_label, verify_mse in verify_mse.items():
-    print(f"預壓力 {er_label} 的MSE值為 {verify_mse:.2f}")
+    if verify_mse>=er_label:
+        er_answer = " 誤差率過大 "
+    else:
+        er_answer = f" 誤差率百分之{verify_mse/er_label*100} "
+    print(f"預壓力 {er_label} 的MSE值為 {verify_mse:.2f} {er_answer}")
 
 print("預測模型驗證MSE值:",final_mse_mean)
 
