@@ -71,13 +71,19 @@ final_mse_mean = np.mean(all_mse, axis=0)
 unique_numbers = np.unique(label)
 verify_mse = {er_label: mean_squared_error(y_test[y_test == er_label], y_pred[y_test == er_label]) for er_label in unique_numbers}
 
-# 输出每个标签的 MSE 值
-for er_label, mse_value in verify_mse.items():
-    print(f"Label {er_label} 的 MSE 值為 {mse_value:.2f}")
+
+# 輸出每個標籤的mse值
+for er_label, verify_mse in verify_mse.items():
+    if verify_mse>=er_label:
+        er_answer = " 誤差率過大 "
+    else:
+        er_answer = f" 誤差率百分之{verify_mse/er_label*100} "
+    print(f"預壓力 {er_label} 的MSE值為 {verify_mse:.2f} {er_answer}")
+
 
 print("預測模型驗證 MSE 值:", final_mse_mean)
 
-# 绘制适应度趋势图
+
 plt.figure(figsize=(10, 6))
 plt.plot(grid_search.cv_results_['mean_test_score'], color='blue', linestyle='--', marker='o', label='Mean Test Score')
 plt.title('Grid Search Mean Test Score Over Parameter Combinations', fontsize=16)
