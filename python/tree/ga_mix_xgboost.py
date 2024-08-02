@@ -124,7 +124,7 @@ num_genes = 3 + num_params              #求解的數量
 gene_space = [
     {'low': 10, 'high': 400},  # n_estimators
     {'low': 1, 'high': 100},    # max_depth
-    {'low': 1, 'high': 30},
+    {'low': 1, 'high': 20},     #min_child_weight
 ]
 
 
