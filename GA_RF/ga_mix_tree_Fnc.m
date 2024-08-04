@@ -1,4 +1,4 @@
-function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,labels,Split_quantity,RF_mode)
+function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,labels,Split_quantity,RF_mode,selection_method)
 
 % 透過基因演算法(GA)對迴歸型(regression)隨機森林(RF)的超參數(樹數目, 每棵樹最大的分枝次數, 
 % 葉節點最小樣本數)與特徵選擇進行優化; 並且使用k-fold的功能將原數據集(data)和其對應標籤(labels),
@@ -7,6 +7,7 @@ function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,lab
 % 迴歸型RF目標函數: 計算該RF模型的預測準確度(MSE), 並以MSE作為GA疊代過程中的目標函數
 % 分類型RF目標函數: 計算該RF模型的預測錯誤率，並以錯誤率作為GA疊代過程中的目標函數
 
+% 2024/07/10:開始新增方法1之功能作為選擇，將某一特徵作為測試數據，其餘數據做為訓練數據
 
 % input
 %----------------------------------------------------
@@ -17,12 +18,17 @@ function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,lab
 % ub_input: 欲優化的超參數的搜索範圍的上限; 維度=1*欲優化的超參數數目
 % data:     輸入RF的原數據集； 維度=樣本數*特徵數
 % labels:   輸入RF的原數據集其對應標籤； 維度=樣本數*1
-% Split_quantity: 將數據集拆分的數量，意即輸入4的話則代表拆成四份數據集
+% Split_quantity: 將數據集拆分的數量，意即輸入4的話則代表拆成四份數據集，若selection_method設定為1則此行輸入請隨輸入數字
 % indices:  由ga_mix_tree_Fnc.m對data進行交叉驗證前的數據拆分的編號集
 %           由Split_quantity設定拆成多少份數據後，將每種不同的labels進行編號分出不同的數據集
 %           假設將數據集分成四份，期對應的所有標籤都將分配1~4的編號並所有不同標籤都會等分成4份
 % RF_mode:  可以選擇要使用分類型RF(classification)或是迴歸型RF(regression)，只需在使用時將對應的分類
 %           輸入在此就行('regression'/'classification')
+% selection_method: 設定如何選取測試資料和訓練資料的方法有1和2兩種
+%                   1: 選取某一特定標籤做為測試資料，其餘做為訓練資料可以觀察模型在預測從未看過的標籤時模型的準度是否能如預期
+%                      意即若今天有三種標籤則會選取其中一種標籤作為測試資料其餘兩種作為訓練資料，且每種標籤都會輪到作為測試資
+%                      料，並讓三種狀況的預測值加起來平均後作為最終預測值
+%                   2: kfold交叉驗證方式，並且是針對每種標籤都會選擇一定比例，而不存在於某種標籤被選到比較少的狀況
 
 % output
 %----------------------------------------------------
@@ -35,7 +41,7 @@ function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,lab
 %            gaoutputfunction.m
 
 
-%last modification: 2024/06/09
+%last modification: 2024/07/10
 
 
 
@@ -65,7 +71,18 @@ ub_sample=size(data,2)*ones(1,numFeats); %欲由GA挑選的特徵的編號的最
 lb = [lb_input lb_sample];  %每個設計變數的範圍(下限)
 ub = [ub_input ub_sample];  %每個設計變數的範圍(上限)
 
-indices = crossvalind('Kfold',labels,Split_quantity);   %將對應labels的所有標籤等分成Split_quantity份並給予編號
+if selection_method==1
+    unm_unique=unique(labels);
+    indices=zeros(length(labels),1);
+    for i=1:length(unm_unique)
+        indices(find(labels == unm_unique(i)),1)= i ;
+    end
+end
+
+if selection_method==2
+    indices = crossvalind('Kfold',labels,Split_quantity);   %將對應labels的所有標籤等分成Split_quantity份並給予編號
+
+end
 
 if out_regression==1   %字串相符時確認使用迴歸型RF         
 

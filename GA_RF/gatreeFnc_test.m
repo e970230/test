@@ -13,6 +13,7 @@
 % 搭配此三項最優超參數建立RF預測模型。
 % 迴歸型RF目標函數: 計算該RF模型的預測準確度(MSE), 並以MSE作為GA疊代過程中的目標函數
 % 分類型RF目標函數: 計算該RF模型的預測錯誤率，並以錯誤率作為GA疊代過程中的目標函數
+% 2024/07/10:開始新增方法1之功能作為選擇，將某一特徵作為測試數據，其餘數據做為訓練數據
 
 
 % gaoutputfunction.m
@@ -46,8 +47,9 @@
 % 在RF訓練與預測時, 皆採計訓練集與驗證集內的所有特徵項目
 
 
+% 2024/07/10:開始新增方法1之功能作為選擇，將某一特徵作為測試數據，其餘數據做為訓練數據
 
-% last modification: 2024/06/10
+% last modification: 2024/07/10
 
 
 
@@ -57,7 +59,7 @@ clear
 close all
 
 
-%% 示範案例1: 不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數
+%% 示範案例1: 不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數，迴歸型隨機森林範例
 
 %讀取測試資料 (已由特徵排序方法篩選出前30名重要特徵)
 feature_dataset=load("feature_dataset_top30.mat");
@@ -68,18 +70,18 @@ FeatureData_label=Data(:,1);  %特徵資料集對應的標籤資料; 維度=samp
 
 
 
-Split_quantity=4;       %利用k-fold平分數據之數量
+Split_quantity=4;       %利用k-fold平分數據之數量，請注意若使用方法1的選取方式時，此處請手動輸入data的標籤種類數量，意即若今天數據標籤有7種不同的標籤則此處請輸入7
 ga_input=[10 300 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
 numFeats=0;   %欲由GA挑選的特徵數量 (numFeats=0: 不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數)
 lb_input=[50 5 5];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
-ub_input=[200 50 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+ub_input=[300 50 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
 
 
 tic
 
 % 由於在ga_mix_tree_Fnc.m中已定義ga的'OutputFcn'為自訂的gaoutputfunction.m, 
 % 其可將ga疊代過程的資訊儲存於Workspace(變數名稱: Population_answer), 故ga_mix_tree_Fnc.m毋須設定輸出即可獲得解答
-[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'regression');
+[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'regression',1);
 %Population_answer為ga_mix_tree_Fnc運算完後自動整理出的歷史疊代資訊
 
 
@@ -96,7 +98,7 @@ toc
 
 
 
-%% 示範案例2: 由GA挑選特徵
+%% 示範案例2: 由GA挑選特徵，迴歸型隨機森林範例
 
 %讀取測試資料 (原始完整的特徵資料集)
 data=load("feature_dataset_heavy.mat");
@@ -106,11 +108,11 @@ FeatureData=Data(:,2:end);    %特徵資料集; 維度=sample數*特徵數
 FeatureData_label=Data(:,1);  %特徵資料集對應的標籤資料; 維度=sample數*1
 
 
-Split_quantity=5;       %利用k-fold平分數據之數量
-ga_input=[10 300 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
+Split_quantity=7;       %利用k-fold平分數據之數量，請注意若使用方法1的選取方式時，此處請手動輸入data的標籤種類數量，意即若今天數據標籤有7種不同的標籤則此處請輸入7
+ga_input=[10 1000 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
 numFeats=30;   %欲由GA挑選的特徵數量
-lb_input=[50 5 5];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
-ub_input=[100 50 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+lb_input=[10 3 3];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+ub_input=[300 40 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
 
 
 
@@ -118,13 +120,87 @@ tic
 
 % 由於在ga_mix_tree_Fnc.m中已定義ga的'OutputFcn'為自訂的gaoutputfunction.m, 
 % 其可將ga疊代過程的資訊儲存於Workspace(變數名稱: Population_answer), 故ga_mix_tree_Fnc.m毋須設定輸出即可獲得解答
-[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'regression');
+[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'regression',1);
 %Population_answer為ga_mix_tree_Fnc運算完後自動整理出的歷史疊代資訊
 
 
 %針對GA找出的參數解答, 將透過反覆重新建立RF模型來評估每個預測模型的預測值的重現性
 Repeat_verification=30;  %重複建立RF的次數
 [best_answer,best_score,verify,best_feature_inx] = ga_mix_tree_answer_Fnc(Population_answer,numFeats,Repeat_verification,FeatureData,FeatureData_label,Split_quantity,indices,'regression');
+
+% best_answer: 由GA找出的最佳的3項RF超參數; 維度=1*3, 依序為樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數
+% best_score: 以GA全部疊代歷程中最佳(MSE最小)的染色體所代表的3項RF超參數所建立的RF預測模型, 於驗證集所得到的預測MSE值
+% verify: 以最佳超參數及特徵重複多次建立RF, 對驗證集的預測值的fitness(MSE值)的平均值, 變異數, 標準差
+% best_feature_inx: 由GA找出的最佳特徵的編號; 維度=1*指定的特徵數目(numFeats); 若不須GA挑選特徵則回傳"[]"
+toc
+
+
+
+%% 示範案例3: 由GA挑選特徵，分類型隨機森林範例
+
+%讀取測試資料 (原始完整的特徵資料集)
+data=load("feature_dataset_heavy.mat");
+Data=data.feature_dataset;
+
+FeatureData=Data(:,2:end);    %特徵資料集; 維度=sample數*特徵數
+FeatureData_label=Data(:,1);  %特徵資料集對應的標籤資料; 維度=sample數*1
+
+
+Split_quantity=5;       %利用k-fold平分數據之數量，請注意若使用方法1的選取方式時，此處請手動輸入data的標籤種類數量，意即若今天數據標籤有7種不同的標籤則此處請輸入7
+ga_input=[10 3 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
+numFeats=30;   %欲由GA挑選的特徵數量
+lb_input=[10 3 3];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+ub_input=[300 40 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+
+
+
+tic
+
+% 由於在ga_mix_tree_Fnc.m中已定義ga的'OutputFcn'為自訂的gaoutputfunction.m, 
+% 其可將ga疊代過程的資訊儲存於Workspace(變數名稱: Population_answer), 故ga_mix_tree_Fnc.m毋須設定輸出即可獲得解答
+[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'classification',2);
+%Population_answer為ga_mix_tree_Fnc運算完後自動整理出的歷史疊代資訊
+
+
+%針對GA找出的參數解答, 將透過反覆重新建立RF模型來評估每個預測模型的預測值的重現性
+Repeat_verification=30;  %重複建立RF的次數
+[best_answer,best_score,verify,best_feature_inx] = ga_mix_tree_answer_Fnc(Population_answer,numFeats,Repeat_verification,FeatureData,FeatureData_label,Split_quantity,indices,'classification');
+
+% best_answer: 由GA找出的最佳的3項RF超參數; 維度=1*3, 依序為樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數
+% best_score: 以GA全部疊代歷程中最佳(MSE最小)的染色體所代表的3項RF超參數所建立的RF預測模型, 於驗證集所得到的預測MSE值
+% verify: 以最佳超參數及特徵重複多次建立RF, 對驗證集的預測值的fitness(MSE值)的平均值, 變異數, 標準差
+% best_feature_inx: 由GA找出的最佳特徵的編號; 維度=1*指定的特徵數目(numFeats); 若不須GA挑選特徵則回傳"[]"
+toc
+
+%% 示範案例4: 不經由GA進行特徵選擇, 即以所有特徵進行建模以便優化超參數，分類型隨機森林範例
+
+%讀取測試資料 (已由特徵排序方法篩選出前30名重要特徵)
+feature_dataset=load("feature_dataset_top30.mat");
+Data=feature_dataset.feature_top30.dataset;
+
+FeatureData=Data(:,2:end);    %特徵資料集; 維度=sample數*特徵數
+FeatureData_label=Data(:,1);  %特徵資料集對應的標籤資料; 維度=sample數*1
+
+
+Split_quantity=5;       %利用k-fold平分數據之數量，請注意若使用方法1的選取方式時，此處請手動輸入data的標籤種類數量，意即若今天數據標籤有7種不同的標籤則此處請輸入7
+ga_input=[10 3 0.7];   %GA參數設定, 依序為族群大小, 疊代次數上限, 交配率
+numFeats=0;   %欲由GA挑選的特徵數量
+lb_input=[10 3 3];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+ub_input=[300 40 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
+
+
+
+tic
+
+% 由於在ga_mix_tree_Fnc.m中已定義ga的'OutputFcn'為自訂的gaoutputfunction.m, 
+% 其可將ga疊代過程的資訊儲存於Workspace(變數名稱: Population_answer), 故ga_mix_tree_Fnc.m毋須設定輸出即可獲得解答
+[indices]=ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,FeatureData,FeatureData_label,Split_quantity,'classification',2);
+%Population_answer為ga_mix_tree_Fnc運算完後自動整理出的歷史疊代資訊
+
+
+%針對GA找出的參數解答, 將透過反覆重新建立RF模型來評估每個預測模型的預測值的重現性
+Repeat_verification=30;  %重複建立RF的次數
+[best_answer,best_score,verify,best_feature_inx] = ga_mix_tree_answer_Fnc(Population_answer,numFeats,Repeat_verification,FeatureData,FeatureData_label,Split_quantity,indices,'classification');
 
 % best_answer: 由GA找出的最佳的3項RF超參數; 維度=1*3, 依序為樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數
 % best_score: 以GA全部疊代歷程中最佳(MSE最小)的染色體所代表的3項RF超參數所建立的RF預測模型, 於驗證集所得到的預測MSE值
