@@ -18,13 +18,13 @@ import matplotlib.pyplot as plt
 # 對於輸入數據之要求須注意維度必須是(樣本*特徵)的格式
 
 
-# 最後修改時間:2024/7/8 
+# 最後修改時間:2024/8/4 
 
 #-------------------------------------------定義副函式區域---------------------------------------
 # 定義適應度函數
 
 def fitness_func_method_one(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
+    data = init_data[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
     all_mse = []
 # 創建 ExtraTreesRegressor 模型
     model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
@@ -33,8 +33,8 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
                                 random_state=42)
     for fold in unique_numbers:
         
-        X_train, X_test = data[np.where(label != fold)[0]], data[np.where(label == fold)[0]]
-        y_train, y_test = label[np.where(label != fold)[0]], label[np.where(label == fold)[0]]
+        X_train, X_test = data[np.where(label != fold)[0]], data[np.where(label == fold)[0]]        #將data中某一特徵的數據和其他特徵的數據區分開來，分為訓練和測試
+        y_train, y_test = label[np.where(label != fold)[0]], label[np.where(label == fold)[0]]      #將label中某一特徵的標籤和其他標籤區分開來，分為訓練和測試
 
         
 
@@ -51,12 +51,12 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
     return -final_mse_mean
 
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
+    data = init_data[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
     all_mse = []
     # 創建 ExtraTreesRegressor 模型
-    model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
-                                max_features=int(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
-                                min_samples_split=int(solution[2]),     #將第三個解作為葉節點最小樣本數
+    model = ExtraTreesRegressor(n_estimators=(solution[0]),          #將第一個解作為樹的數量
+                                max_features=(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
+                                min_samples_split=(solution[2]),     #將第三個解作為葉節點最小樣本數
                                 random_state=42)
     for train_index, test_index in skf.split(data,label):
         X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
@@ -80,6 +80,7 @@ def generate_dynamic_gene_space(num_params,init_data):
     predefined_ranges = [{'low': 1, 'high': Dimensions[1]} for _ in range(num_params)] #根據設定所求選擇特徵之數量創建下限為1上限為矩陣特徵上限之字串設定
     return predefined_ranges
 
+#依據是否有選擇特徵來進行判斷的副函式
 def generate_all_or_number(num_params,gene_space,init_data):
     gene_space_next = generate_dynamic_gene_space(num_params,init_data)
     if gene_space_next == []:
@@ -114,24 +115,24 @@ label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數�
 
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
-unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
+unique_numbers = np.unique(label)       #將標籤中不相同處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 1000                   #基因演算法疊代次數
+num_generations = 2                   #基因演算法疊代次數
 num_parents_mating = 10                  #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
 num_params = 50                         #選擇的特徵數量
 num_genes = 3 + num_params              #求解的數量
 
 
-# 各個染色體範圍設置
+# 各個基因範圍設置
 gene_space = [
     {'low': 10, 'high': 600},  # n_estimators
     {'low': 1, 'high': 40},    # max_features
     {'low': 2, 'high': 30}     # min_samples_split
 ]
 
-
+# 設置選擇特徵的基因範圍，若想從50個特徵則會創建一個50個{'low': 1, 'high': data的特徵上限}+前面設置的染色體範圍的配置
 final_gene_space = generate_all_or_number(num_params,gene_space,init_data)
 
 # 基因演算法模型超參數細部設定
@@ -165,14 +166,16 @@ print("Elapsed Time: %.2f seconds" % elapsed_time)
 print("最佳樹的數量:", solution[0])
 print("最佳分裂時考慮的最大特徵數:", solution[1])
 print("最佳葉節點最小樣本數:", solution[2])
-print("最佳選擇特徵:", solution[3:])
+print("最佳選擇特徵:", np.sort(solution[3:]))
 print("最佳解的適應度值:", solution_fitness)
 
 
 
 
 #-------------------------------------------測試答案階段區域 two---------------------------------------
-test_data = feature_dataset[:, solution[3:]]
+#重新根據最佳解答再次建立模型進行判斷
+
+test_data = init_data[:, solution[3:]]
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 all_mse = []
@@ -198,10 +201,17 @@ verify_mse = {er_label: mean_squared_error(y_test[y_test == er_label], y_pred[y_
 
 # 輸出每個標籤的mse值
 for er_label, verify_mse in verify_mse.items():
-    print(f"預壓力 {er_label} 的MSE值為 {verify_mse:.2f}")
-
+    if verify_mse>=er_label:
+        er_answer = " 誤差率過大 "
+    else:
+        er_answer = f" 誤差率百分之{verify_mse/er_label*100} "
+    print(f"預壓力 {er_label} 的MSE值為 {verify_mse:.2f} {er_answer}")
 
 print("預測模型驗證MSE值:",final_mse_mean)
+
+
+
+
 
 #-------------------------------------------測試答案階段區域 one---------------------------------------
 '''
