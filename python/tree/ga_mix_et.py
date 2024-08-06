@@ -24,7 +24,12 @@ import matplotlib.pyplot as plt
 # 定義適應度函數
 
 def fitness_func_method_one(ga_instance, solution, solution_idx):
-    data = init_data[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
+    #判斷選擇使用全部特徵還是從中選取特徵
+    if num_params == 0:
+        data = init_data
+    else:
+        data = init_data[:, solution[3:]]   # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
+    
     all_mse = []
 # 創建 ExtraTreesRegressor 模型
     model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
@@ -51,7 +56,14 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
     return -final_mse_mean
 
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = init_data[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
+    
+    #判斷選擇使用全部特徵還是從中選取特徵
+    if num_params == 0:
+        data = init_data
+    else:
+        data = init_data[:, solution[3:]]   # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
+    
+    
     all_mse = []
     # 創建 ExtraTreesRegressor 模型
     model = ExtraTreesRegressor(n_estimators=(solution[0]),          #將第一個解作為樹的數量
@@ -121,7 +133,7 @@ unique_numbers = np.unique(label)       #將標籤中不相同處給區別出來
 num_generations = 2                   #基因演算法疊代次數
 num_parents_mating = 10                  #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
-num_params = 50                         #選擇的特徵數量
+num_params = 30                         #選擇的特徵數量
 num_genes = 3 + num_params              #求解的數量
 
 
