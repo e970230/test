@@ -24,17 +24,17 @@ label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0�
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 
 param_grid = {
-    'n_estimators': [100, 200, 300, 400, 500],
-    'learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
-    'max_depth': [3, 4, 5, 6, 7, 8, 9, 10],
-    'min_child_weight': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    'gamma': [0, 0.1, 0.2, 0.3, 0.4, 0.5],
-    'subsample': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    'colsample_bytree': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    'colsample_bylevel': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    'colsample_bynode': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    'lambda': [0, 0.1, 1, 10],
-    'alpha': [0, 0.1, 1, 10]
+    'n_estimators': np.arange(10,401,10),
+    'learning_rate': np.arange(0.01,0.3,0.01),
+    'max_depth': np.arange(1,10),
+    'min_child_weight': np.arange(1,10),
+    'gamma': np.arange(0,0.5,0.1),
+    'subsample': np.arange(0.5,1,0.1),
+    'colsample_bytree': np.arange(0.5,1,0.1),
+    'colsample_bylevel': np.arange(0.5,1,0.1),
+    'colsample_bynode': np.arange(0.5,1,0.1),
+    'lambda': np.arange(0,5,0.1),
+    'alpha': np.arange(0,5,0.1)
 }
 
 # 创建 XGBRegressor 模型
