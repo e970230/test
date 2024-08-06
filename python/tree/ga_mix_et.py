@@ -121,6 +121,7 @@ mat = scipy.io.loadmat('feature_dataset_top30.mat')
 feature_dataset = mat['Data']
 '''
 
+#若要使用其他數據，則這邊請將相對應的標籤定義成label，對應的數據請定義成init_data
 
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
@@ -130,8 +131,8 @@ skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sK
 unique_numbers = np.unique(label)       #將標籤中不相同處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 2                   #基因演算法疊代次數
-num_parents_mating = 10                  #每代選多少個染色體進行交配
+num_generations = 300                   #基因演算法疊代次數
+num_parents_mating = 10                 #每代選多少個染色體進行交配
 sol_per_pop = 20                        #染色體數量
 num_params = 30                         #選擇的特徵數量
 num_genes = 3 + num_params              #求解的數量
@@ -187,7 +188,12 @@ print("最佳解的適應度值:", solution_fitness)
 #-------------------------------------------測試答案階段區域 two---------------------------------------
 #重新根據最佳解答再次建立模型進行判斷
 
-test_data = init_data[:, solution[3:]]
+#判斷選擇使用全部特徵還是從中選取特徵
+if num_params == 0:
+    test_data = init_data
+else:
+    test_data = init_data[:, solution[3:]]   # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
+
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 all_mse = []
@@ -211,7 +217,7 @@ final_mse_mean = np.mean(all_mse, axis=0)
 
 verify_mse = {er_label: mean_squared_error(y_test[y_test == er_label], y_pred[y_test == er_label]) for er_label in unique_numbers}
 
-# 輸出每個標籤的mse值
+# 輸出每個標籤的mse值進行驗證
 for er_label, verify_mse in verify_mse.items():
     if verify_mse>=er_label:
         er_answer = " 誤差率過大 "
