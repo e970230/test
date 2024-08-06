@@ -21,28 +21,24 @@ feature_dataset = mat['feature_dataset']
 init_data = feature_dataset[:, 1:]  # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0列
 
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
+skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=None)
 
 param_grid = {
     'n_estimators': np.arange(10,401,10),
-    'learning_rate': np.arange(0.01,0.3,0.01),
+    'learning_rate': np.arange(0.01,0.31,0.01),
     'max_depth': np.arange(1,10),
     'min_child_weight': np.arange(1,10),
     'gamma': np.arange(0,0.5,0.1),
     'subsample': np.arange(0.5,1,0.1),
     'colsample_bytree': np.arange(0.5,1,0.1),
-    'colsample_bylevel': np.arange(0.5,1,0.1),
-    'colsample_bynode': np.arange(0.5,1,0.1),
-    'lambda': np.arange(0,5,0.1),
-    'alpha': np.arange(0,5,0.1)
 }
 
 # 创建 XGBRegressor 模型
-xgb_model = xgb.XGBRegressor(booster='gbtree', random_state=42,learning_rate=0.2)
+xgb_model = xgb.XGBRegressor(booster='gbtree', random_state=42)
 
 # 创建 GridSearchCV 对象
 grid_search = GridSearchCV(estimator=xgb_model, param_grid=param_grid, 
-                           scoring='neg_mean_squared_error', cv=skf, verbose=1, n_jobs=-1)
+                           scoring='neg_mean_squared_error', cv=skf, verbose=1, n_jobs=1)
 
 # 记录开始时间
 start_time = time.time()
