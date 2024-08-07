@@ -45,14 +45,17 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
             return -np.inf,  # 返回一個極小值表示無效解決方案
 '''
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, solution[3:]]                                 # 擷取原數據共num_params個特徵，
+    data = feature_dataset[:, 1:]                                 # 擷取原數據共num_params個特徵，
     all_mse = []
     # 創建 XGBRegressor 模型
-    model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
-                             max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=0.2,              #將第三個解作為學習率
+    model = xgb.XGBRegressor(n_estimators= solution[0],             #將第一個解作為樹的數量
+                             learning_rate= (solution[1]*0.01),     #將第三個解作為學習率
+                             max_depth=solution[2],                 #將第二個解作為樹的最大深度
+                             min_child_weight=solution[3],
+                             gamma = solution[4]*0.01,
+                             subsample = solution[5]*0.01,
+                             colsample_bytree = solution[6]*0.01,
                              booster='gbtree',
-                             min_child_weight=int(solution[2]),
                              random_state=42)
     for train_index, test_index in skf.split(data,label):
         X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
@@ -88,12 +91,12 @@ def generate_all_or_number(num_params,gene_space,init_data):
 #額外顯示當次疊代當前fitness
 def on_generation(ga_instance):
     print(f"第 {ga_instance.generations_completed} 代")
-    print(f"最佳適應度值： {ga_instance.best_solution()[1]}")
+    print(f"最佳適應度值： {ga_instance.best_solutions_fitness[ga_instance.generations_completed-1]}")
     print("")
 
 
 #-------------------------------------------主要運行程式區域---------------------------------------
-
+'''
 #讀取檔案
 mat = scipy.io.loadmat('feature_dataset_heavy.mat')
 feature_dataset = mat['feature_dataset']            #此原數據之輸入要求為樣本*特徵
@@ -102,30 +105,35 @@ feature_dataset = mat['feature_dataset']            #此原數據之輸入要求
 mat = scipy.io.loadmat('feature_dataset_top30.mat')
 
 feature_dataset = mat['Data']
-'''
+
 
 
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
+skf = StratifiedKFold(n_splits=2, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 1                   #基因演算法疊代次數
-num_parents_mating = 5                  #每代選多少個染色體進行交配
-sol_per_pop = 20                        #染色體數量
-num_params = 50                         #選擇的特徵數量
-num_genes = 3 + num_params              #求解的數量
+num_generations = 500                   #基因演算法疊代次數
+num_parents_mating = 10                  #每代選多少個染色體進行交配
+sol_per_pop = 30                        #染色體數量
+num_params = 0                         #選擇的特徵數量
+num_genes = 7 + num_params              #求解的數量
 
 
 # 各個染色體範圍設置
 gene_space = [
-    {'low': 10, 'high': 400},  # n_estimators
-    {'low': 1, 'high': 100},    # max_depth
-    {'low': 1, 'high': 20},     #min_child_weight
+    {'low': 10, 'high': 400},  # 
+    {'low': 1, 'high': 30},    # 
+    {'low': 1, 'high': 10},    # 
+    {'low': 1, 'high': 10},    #
+    {'low': 0, 'high': 50},    #
+    {'low': 0, 'high': 50},    #
+    {'low': 0, 'high': 50},    #
 ]
+
 
 
 final_gene_space = generate_all_or_number(num_params,gene_space,init_data)
@@ -142,7 +150,7 @@ ga_instance = pygad.GA(
                        parent_selection_type="rank",                   #選擇染色體方式依據排名來選擇
                        crossover_type="single_point",                  #單點交配
                        mutation_type="random",                         #隨機突變
-                       mutation_probability=0.3,                       #突變率
+                       mutation_probability=0.4,                       #突變率
                        on_generation=on_generation,                    #每次疊代資訊顯示
                        save_solutions=False                            #儲存每次疊代解答之設定
 )
@@ -158,26 +166,32 @@ solution, solution_fitness, solution_idx = ga_instance.best_solution()
 end_time = time.time()
 elapsed_time = end_time - start_time                #顯示運行時間
 print("Elapsed Time: %.2f seconds" % elapsed_time)
+'''
 print("最佳樹的數量:", solution[0])
 print("最佳樹的最大深度:", solution[1])
 print("最佳葉節點最小權重和:", solution[2])
 print("最佳選擇特徵:", np.sort(solution[3:]))
+'''
+print("最佳超參數解:", solution)
 print("最佳解的適應度值:", solution_fitness)
 
 
 #-------------------------------------------測試答案階段區域 two---------------------------------------
-test_data = feature_dataset[:, solution[3:]]
+test_data = feature_dataset[:, 1:]
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 all_mse = []
 for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label):
         X_train, X_test = test_data[train_index_test_ver], test_data[test_index_test_ver]
         y_train, y_test = label[train_index_test_ver], label[test_index_test_ver]
-        test_model = xgb.XGBRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
-                             max_depth=int(solution[1]),             #將第二個解作為樹的最大深度
-                             learning_rate=0.3,              #將第三個解作為學習率
+        test_model = xgb.XGBRegressor(n_estimators= solution[0],             #將第一個解作為樹的數量
+                             learning_rate= (solution[1]*0.01),     #將第三個解作為學習率
+                             max_depth=solution[2],                 #將第二個解作為樹的最大深度
+                             min_child_weight=solution[3],
+                             gamma = solution[4]*0.01,
+                             subsample = solution[5]*0.01,
+                             colsample_bytree = solution[6]*0.01,
                              booster='gbtree',
-                             min_child_weight=int(solution[2]),
                              random_state=42)
         test_model.fit(X_train, y_train)
         y_pred = test_model.predict(X_test)
