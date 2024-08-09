@@ -8,6 +8,7 @@ function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,lab
 % 分類型RF目標函數: 計算該RF模型的預測錯誤率，並以錯誤率作為GA疊代過程中的目標函數
 
 % 2024/07/10:開始新增方法1之功能作為選擇，將某一特徵作為測試數據，其餘數據做為訓練數據
+% 2024/08/09:新增方法3作為選擇，可以開啟或關閉k-fold功能
 
 % input
 %----------------------------------------------------
@@ -24,11 +25,12 @@ function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,lab
 %           假設將數據集分成四份，期對應的所有標籤都將分配1~4的編號並所有不同標籤都會等分成4份
 % RF_mode:  可以選擇要使用分類型RF(classification)或是迴歸型RF(regression)，只需在使用時將對應的分類
 %           輸入在此就行('regression'/'classification')
-% selection_method: 設定如何選取測試資料和訓練資料的方法有1和2兩種
+% selection_method: 設定如何選取測試資料和訓練資料的方法有(1、2、3)三種
 %                   1: 選取某一特定標籤做為測試資料，其餘做為訓練資料可以觀察模型在預測從未看過的標籤時模型的準度是否能如預期
 %                      意即若今天有三種標籤則會選取其中一種標籤作為測試資料其餘兩種作為訓練資料，且每種標籤都會輪到作為測試資
 %                      料，並讓三種狀況的預測值加起來平均後作為最終預測值
 %                   2: kfold交叉驗證方式，並且是針對每種標籤都會選擇一定比例，而不存在於某種標籤被選到比較少的狀況
+%                   3: 不採用k-fold交叉驗證，代表訓練數據即驗證數據，使用在資料樣本數不多時的選擇
 
 % output
 %----------------------------------------------------
@@ -41,7 +43,7 @@ function[indices] = ga_mix_tree_Fnc(ga_input,numFeats,lb_input,ub_input,data,lab
 %            gaoutputfunction.m
 
 
-%last modification: 2024/07/10
+%last modification: 2024/08/09
 
 
 
@@ -72,16 +74,24 @@ lb = [lb_input lb_sample];  %每個設計變數的範圍(下限)
 ub = [ub_input ub_sample];  %每個設計變數的範圍(上限)
 
 if selection_method==1
-    unm_unique=unique(labels);
-    indices=zeros(length(labels),1);
+    disp('當前k-fold功能開啟中')
+    k_fold_switch=1;                                        %k-fold功能開啟
+    unm_unique=unique(labels);                              %找出標籤種類的數量
+    Split_quantity = length(unm_unique);                    %根據標籤種類數量設定所需fold數
+    indices=zeros(length(labels),1);                        %新增一個符合標籤編號
     for i=1:length(unm_unique)
-        indices(find(labels == unm_unique(i)),1)= i ;
+        indices(find(labels == unm_unique(i)),1)= i ;       %將每種不同的標籤分類成不同的fold
     end
-end
 
-if selection_method==2
-    indices = crossvalind('Kfold',labels,Split_quantity);   %將對應labels的所有標籤等分成Split_quantity份並給予編號
+elseif selection_method==2
+    disp('當前k-fold功能開啟中')
+    k_fold_switch=1;                                        %k-fold功能開啟
+    indices = crossvalind('Kfold',labels,Split_quantity);   %將對應labels的所有標籤等分成Split_quantity份的fold
 
+elseif selection_method==3  %若使用選取方法3將k-flod功能關閉
+    k_fold_switch=0;        %k-flod功能關閉
+    disp('當前k-fold功能關閉中')
+    indices=[];             %k-fold功能關閉，所以此參數設定為空矩陣
 end
 
 if out_regression==1   %字串相符時確認使用迴歸型RF         
@@ -92,7 +102,7 @@ if out_regression==1   %字串相符時確認使用迴歸型RF
         % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
         % 建立迴歸RF模型, 再透過驗證集(validData)及其對應的標籤(validLabels)計算
         % 該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
-        fitnessFunction = @(x) RandomForestFitnessBasic(x,data,labels,Split_quantity,indices,'regression');
+        fitnessFunction = @(x) RandomForestFitnessBasic(x,data,labels,Split_quantity,indices,'regression',k_fold_switch);
         disp("演算模式: 採計所有特徵")
     
     else
@@ -101,7 +111,7 @@ if out_regression==1   %字串相符時確認使用迴歸型RF
         % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
         % 使用x所提供的特徵項目建立迴歸RF模型, 再透過驗證集(validData)及其對應的
         % 標籤(validLabels)計算該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
-        fitnessFunction = @(x) RandomForestFitness(x,data,labels,Split_quantity,indices,x(numParas+1:end),'regression');
+        fitnessFunction = @(x) RandomForestFitness(x,data,labels,Split_quantity,indices,x(numParas+1:end),'regression',k_fold_switch);
         disp("演算模式: 採計GA挑選的 "+ num2str(numFeats) +"個特徵")
     end
 end
@@ -113,7 +123,7 @@ if out_classification==1    %字串相符時確認使用分類型RF
         % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
         % 建立迴歸RF模型, 再透過驗證集(validData)及其對應的標籤(validLabels)計算
         % 該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
-        fitnessFunction = @(x) RandomForestFitnessBasic(x,data,labels,Split_quantity,indices,'classification');
+        fitnessFunction = @(x) RandomForestFitnessBasic(x,data,labels,Split_quantity,indices,'classification',k_fold_switch);
         disp("演算模式: 採計所有特徵")
     
     else
@@ -122,7 +132,7 @@ if out_classification==1    %字串相符時確認使用分類型RF
         % 根據x所提供的RF超參數及訓練集(trainData)與對應的標籤(trainLabels), 
         % 使用x所提供的特徵項目建立迴歸RF模型, 再透過驗證集(validData)及其對應的
         % 標籤(validLabels)計算該RF模型的預測值的MSE,並作為ga的目標函數(fitnessFunction)
-        fitnessFunction = @(x) RandomForestFitness(x,data,labels,Split_quantity,indices,x(numParas+1:end),'classification');
+        fitnessFunction = @(x) RandomForestFitness(x,data,labels,Split_quantity,indices,x(numParas+1:end),'classification',k_fold_switch);
         disp("演算模式: 採計GA挑選的 "+ num2str(numFeats) +"個特徵")
     end
 

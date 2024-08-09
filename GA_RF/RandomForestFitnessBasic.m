@@ -1,7 +1,9 @@
-function [fitness] = RandomForestFitnessBasic(params,data,labels,Split_quantity,indices,RF_mode)
+function [fitness] = RandomForestFitnessBasic(params,data,labels,Split_quantity,indices,RF_mode,k_fold_switch)
 % 根據所給定的RF超參數(樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)及資料集(data)
 % 與對應的標籤(labels), 建立(迴歸RF模型/分類RF模型), 再準備(訓練數據和標籤)以及(驗證數據和標籤)會利用kfold交叉驗證的方式
 % 將數據拆成Split_quantity份計算該(迴歸RF模型的預測值的MSE(fitness)/分類RF模型的預測值的錯誤率)
+
+% 2024/08/09:新增可以開啟或關閉k-fold功能，若關閉k-fold功能則訓練即驗證
 
 % 關於kfold交叉驗證方式說明如下:
 % 假使將數據拆成4份意即對應原數據下的每種對應標籤平分成4份(每種標籤都會平分)
@@ -12,7 +14,7 @@ function [fitness] = RandomForestFitnessBasic(params,data,labels,Split_quantity,
 % **在RF訓練與預測時, 皆採計訓練集與驗證集內的所有特徵項目**
 
 
-% last modification: 2024/06/10
+% last modification: 2024/08/09
 
 
 % input
@@ -27,6 +29,7 @@ function [fitness] = RandomForestFitnessBasic(params,data,labels,Split_quantity,
 %          假設將數據集分成四份，期對應的所有標籤都將分配1~4的編號並所有不同標籤都會等分成4份
 % RF_mode: 可以選擇要使用分類型RF(classification)或是迴歸型RF(regression)，只需在使用時將對應的分類
 %          輸入在此就行('regression'/'classification')
+% k_fold_switch: 切換是否啟用k-flod功能，啟用輸入1，關閉輸入0
 
 % output
 %----------------------------------------------------
@@ -40,52 +43,85 @@ numTrees = params(1);    %樹數目
 maxNumSplits = params(2);    %每棵樹最大的分枝次數
 minLeafSize = params(3); %葉節點最小樣本數
 
-if out_regression==1    %字串相符時確認使用迴歸型RF  
+if k_fold_switch==1  %啟動k-fold功能
 
-    for Sq=1:Split_quantity
+    if out_regression==1    %字串相符時確認使用迴歸型RF  
+    
+        for Sq=1:Split_quantity
+    
+            % 找到選擇的測試數據編號以外的所有數據標籤
+            include_indices = (indices ~= Sq);
+            
+            
+            trainData=data(include_indices,:);                %將數據集中未被選到做為驗證數據的數據存取出來(總樣本數減去被選為驗證數據樣本數*總特徵數)
+            trainLabels=labels(include_indices,1);            %將標籤集中未被選到做為驗證標籤的標籤存取出來(總樣本數減去被選為驗證數據樣本數*1)
+            validData=data(find(indices(:,:)==Sq),:);         %將數據集中被選到做為驗證數據的數據存取出來(被選為驗證數據樣本數*總特徵數)
+            validLabels=labels(find(indices(:,:)==Sq),1);     %將標籤集中被選到做為驗證標籤的標籤存取出來(被選為驗證數據樣本數*1)
+            
+            %建立RF模型(迴歸型)
+            treeBaggerModel = TreeBagger(numTrees, trainData, trainLabels, 'Method', 'regression', ...
+                'MaxNumSplits', maxNumSplits, 'MinLeafSize', minLeafSize);
+                
+            predictions = predict(treeBaggerModel, validData);      %以驗證集進行預測
+            fitness(Sq) = mean((predictions - validLabels).^2);     %計算預測值的MSE
+    
+        end
+    end
+    if out_classification==1    %字串相符時確認使用分類型RF 
+        for Sq=1:Split_quantity
+    
+        
+            % 找到選擇的測試數據編號以外的所有數據標籤
+            include_indices = (indices ~= Sq);
+            
+            
+            trainData=data(include_indices,:);                %將數據集中未被選到做為驗證數據的數據存取出來(總樣本數減去被選為驗證數據樣本數*總特徵數)
+            trainLabels=labels(include_indices,1);            %將標籤集中未被選到做為驗證標籤的標籤存取出來(總樣本數減去被選為驗證數據樣本數*1)
+            validData=data(find(indices(:,:)==Sq),:);         %將數據集中被選到做為驗證數據的數據存取出來(被選為驗證數據樣本數*總特徵數)
+            validLabels=labels(find(indices(:,:)==Sq),1);     %將標籤集中被選到做為驗證標籤的標籤存取出來(被選為驗證數據樣本數*1)
+            
+            %建立RF模型(分類型)
+            treeBaggerModel = TreeBagger(numTrees, trainData, trainLabels, 'Method', 'classification', ...
+                'MaxNumSplits', maxNumSplits, 'MinLeafSize', minLeafSize);
+                
+            predictions = abs(str2double(predict(treeBaggerModel, validData))-validLabels);     %以驗證集進行預測
+            error_time=(length(find(predictions~=0)));                                         %計算預測答案和驗證標籤的錯誤次數
+            
+            fitness(Sq) = error_time/size(validLabels,1);                                       %計算錯誤次數占整體答案的百分比(若預測答案完全預測正確則此項為0)
+    
+        end
+    
+    end
 
-        % 找到選擇的測試數據編號以外的所有數據標籤
-        include_indices = (indices ~= Sq);
+elseif k_fold_switch==0 %不啟動k-fold功能
+    
+    if out_regression==1            %字串相符時確認使用迴歸型RF  
+        trainData=data(:,:);        %訓練集; 維度=sample數*所有特徵
+        trainLabels=labels(:,1);    %訓練集其對應標籤; 維度=sample數*1
         
-        
-        trainData=data(include_indices,:);                %將數據集中未被選到做為驗證數據的數據存取出來(總樣本數減去被選為驗證數據樣本數*總特徵數)
-        trainLabels=labels(include_indices,1);            %將標籤集中未被選到做為驗證標籤的標籤存取出來(總樣本數減去被選為驗證數據樣本數*1)
-        validData=data(find(indices(:,:)==Sq),:);         %將數據集中被選到做為驗證數據的數據存取出來(被選為驗證數據樣本數*總特徵數)
-        validLabels=labels(find(indices(:,:)==Sq),1);     %將標籤集中被選到做為驗證標籤的標籤存取出來(被選為驗證數據樣本數*1)
         
         %建立RF模型(迴歸型)
         treeBaggerModel = TreeBagger(numTrees, trainData, trainLabels, 'Method', 'regression', ...
             'MaxNumSplits', maxNumSplits, 'MinLeafSize', minLeafSize);
-            
-        predictions = predict(treeBaggerModel, validData);  %以驗證集進行預測
-        fitness(Sq) = mean((predictions - validLabels).^2);  %計算預測值的MSE
-
+        
+        predictions = predict(treeBaggerModel, trainData);    %以驗證集進行預測 
+        fitness = mean((predictions - trainLabels).^2);         %計算預測值的MSE
     end
-end
-if out_classification==1    %字串相符時確認使用分類型RF 
-    for Sq=1:Split_quantity
 
-    
-        % 找到選擇的測試數據編號以外的所有數據標籤
-        include_indices = (indices ~= Sq);
+    if out_classification==1        %字串相符時確認使用分類型RF
+        trainData=data(:,:);        %訓練集; 維度=sample數*所有特徵
+        trainLabels=labels(:,1);    %訓練集其對應標籤; 維度=sample數*1
         
-        
-        trainData=data(include_indices,:);                %將數據集中未被選到做為驗證數據的數據存取出來(總樣本數減去被選為驗證數據樣本數*總特徵數)
-        trainLabels=labels(include_indices,1);            %將標籤集中未被選到做為驗證標籤的標籤存取出來(總樣本數減去被選為驗證數據樣本數*1)
-        validData=data(find(indices(:,:)==Sq),:);         %將數據集中被選到做為驗證數據的數據存取出來(被選為驗證數據樣本數*總特徵數)
-        validLabels=labels(find(indices(:,:)==Sq),1);     %將標籤集中被選到做為驗證標籤的標籤存取出來(被選為驗證數據樣本數*1)
         
         %建立RF模型(分類型)
         treeBaggerModel = TreeBagger(numTrees, trainData, trainLabels, 'Method', 'classification', ...
             'MaxNumSplits', maxNumSplits, 'MinLeafSize', minLeafSize);
-            
-        predictions = abs(str2double(predict(treeBaggerModel, validData))-validLabels);  %以驗證集進行預測
-        error_time=(length(find(predictions==~0))); %計算預測答案和驗證標籤的錯誤次數
+        predictions = abs(str2double(predict(treeBaggerModel, trainData))-trainLabels);     %以驗證集進行預測
+        error_time=(length(find(predictions~=0)));                                         %計算預測答案和驗證標籤的錯誤次數
         
-        fitness(Sq) = error_time/size(validLabels,1);  %計算錯誤次數占整體答案的百分比(若預測答案完全預測正確則此項為0)
-
+        fitness = error_time/size(trainLabels,1);                                       %計算錯誤次數占整體答案的百分比(若預測答案完全預測正確則此項為0)
     end
-
+        
 end
 
 
