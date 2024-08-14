@@ -55,6 +55,7 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
                              gamma = solution[4]*0.01,
                              subsample = solution[5]*0.01,
                              colsample_bytree = solution[6]*0.01,
+                             reg_alpha = solution[7]*0.01,
                              booster='gbtree',
                              random_state=42)
     for train_index, test_index in skf.split(data,label):
@@ -116,22 +117,23 @@ skf = StratifiedKFold(n_splits=2, shuffle=True, random_state=None)     #設定sK
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 500                   #基因演算法疊代次數
-num_parents_mating = 10                  #每代選多少個染色體進行交配
+num_generations = 1000                   #基因演算法疊代次數
+num_parents_mating = 20                  #每代選多少個染色體進行交配
 sol_per_pop = 30                        #染色體數量
 num_params = 0                         #選擇的特徵數量
-num_genes = 7 + num_params              #求解的數量
+num_genes = 8 + num_params              #求解的數量
 
 
 # 各個染色體範圍設置
 gene_space = [
     {'low': 10, 'high': 400},  # 
-    {'low': 1, 'high': 30},    # 
-    {'low': 1, 'high': 10},    # 
+    {'low': 1, 'high': 20},    # 
+    {'low': 3, 'high': 10},    # 
     {'low': 1, 'high': 10},    #
     {'low': 0, 'high': 50},    #
-    {'low': 0, 'high': 50},    #
-    {'low': 0, 'high': 50},    #
+    {'low': 50, 'high': 100},    #
+    {'low': 50, 'high': 100},    #
+    {'low': 0, 'high': 100},    #
 ]
 
 
@@ -172,7 +174,7 @@ print("最佳樹的最大深度:", solution[1])
 print("最佳葉節點最小權重和:", solution[2])
 print("最佳選擇特徵:", np.sort(solution[3:]))
 '''
-print("最佳超參數解:", solution)
+print("最佳超參數組合:", solution)
 print("最佳解的適應度值:", solution_fitness)
 
 
@@ -191,6 +193,7 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
                              gamma = solution[4]*0.01,
                              subsample = solution[5]*0.01,
                              colsample_bytree = solution[6]*0.01,
+                             reg_alpha = solution[7]*0.01,
                              booster='gbtree',
                              random_state=42)
         test_model.fit(X_train, y_train)
