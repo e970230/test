@@ -32,9 +32,9 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
     
     all_mse = []
 # 創建 ExtraTreesRegressor 模型
-    model = ExtraTreesRegressor(n_estimators=int(solution[0]),          #將第一個解作為樹的數量
-                                max_features=int(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
-                                min_samples_split=int(solution[2]),     #將第三個解作為葉節點最小樣本數
+    model = ExtraTreesRegressor(n_estimators=(solution[0]),          #將第一個解作為樹的數量
+                                max_features=(solution[1]),          #將第二個解作為分裂時考慮的最大特徵數
+                                min_samples_split=(solution[2]),     #將第三個解作為葉節點最小樣本數
                                 random_state=42)
     for fold in unique_numbers:
         
@@ -105,8 +105,9 @@ def generate_all_or_number(num_params,gene_space,init_data):
 #額外顯示當次疊代當前fitness
 def on_generation(ga_instance):
     print(f"第 {ga_instance.generations_completed} 代")
-    print(f"最佳適應度值： {ga_instance.best_solution()[1]}")
+    print(f"最佳適應度值： {ga_instance.best_solutions_fitness[ga_instance.generations_completed-1]}")
     print("")
+
 
 
 #-------------------------------------------主要運行程式區域---------------------------------------
@@ -140,9 +141,9 @@ num_genes = 3 + num_params              #求解的數量
 
 # 各個基因範圍設置
 gene_space = [
-    {'low': 10, 'high': 600},  # n_estimators
-    {'low': 1, 'high': 40},    # max_features
-    {'low': 2, 'high': 30}     # min_samples_split
+    {'low': 10, 'high': 600},  # n_estimators(樹的數量)
+    {'low': 1, 'high': 40},    # max_features(分裂時考慮的最大特徵數)
+    {'low': 2, 'high': 30}     # min_samples_split(葉節點最小樣本數)
 ]
 
 # 設置選擇特徵的基因範圍，若想從50個特徵則會創建一個50個{'low': 1, 'high': data的特徵上限}+前面設置的染色體範圍的配置
@@ -160,7 +161,7 @@ ga_instance = pygad.GA(
                        parent_selection_type="rank",                   #選擇染色體方式依據排名來選擇
                        crossover_type="single_point",                  #單點交配
                        mutation_type="random",                         #隨機突變
-                       mutation_probability=0.3,                       #突變率
+                       mutation_probability=0.4,                       #突變率
                        on_generation=on_generation,                    #每次疊代資訊顯示
                        save_solutions=False                            #儲存每次疊代解答之設定
 )
