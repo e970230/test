@@ -45,8 +45,9 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
             return -np.inf,  # 返回一個極小值表示無效解決方案
 '''
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, 1:]                                 # 擷取原數據共num_params個特徵，
-    all_mse = []
+    data = feature_dataset[:, solution[8:]]                                 # 擷取原數據共num_params個特徵，
+    #all_mse = []
+    final_vr_answer = []
     # 創建 XGBRegressor 模型
     model = xgb.XGBRegressor(n_estimators= solution[0],             #將第一個解作為樹的數量
                              learning_rate= (solution[1]*0.01),     #將第三個解作為學習率
@@ -67,12 +68,26 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
         y_pred = model.predict(X_test)              #預測解答
 
         # 計算預測答案和原始標籤之MSE值
-        mse = mean_squared_error(y_test, y_pred)    #計算MSE值
-        all_mse.append(mse)                         #將當次MSE值記錄下來
+        #mse = mean_squared_error(y_test, y_pred)    #計算MSE值
+        #all_mse.append(mse)                         #將當次MSE值記錄下來
     
-    final_mse_mean = np.mean(all_mse, axis=0)       #將所有記錄下來的MSE值進行平均
+        verify_mse = {er_label: mean_squared_error(y_test[y_test == er_label], y_pred[y_test == er_label]) for er_label in unique_numbers}
+
+        temporary_vr_answer = []  # 初始化為一個空列表，存儲每次的vr_answer
+
+        for er_label, verify_mse in verify_mse.items():
+            if verify_mse >= er_label:
+                vr_answer = 1000
+            else:
+                vr_answer = verify_mse / er_label * 100
+
+            temporary_vr_answer.append(vr_answer)  # 使用列表的append方法將vr_answer追加到final_vr_answer中
+    
+    final_vr_answer.append(np.sum(temporary_vr_answer))  # 最後將列表轉換為numpy數組
+    final_vr_answer = np.array(final_vr_answer)  # 最後將列表轉換為numpy數組
+    #final_mse_mean = np.mean(all_mse, axis=0)       #將所有記錄下來的MSE值進行平均
     # 取負的MSE找其最大值
-    return -final_mse_mean
+    return -final_vr_answer
 
 #定義擷取特徵數量函數
 def generate_dynamic_gene_space(num_params,init_data):
@@ -97,7 +112,7 @@ def on_generation(ga_instance):
 
 
 #-------------------------------------------主要運行程式區域---------------------------------------
-'''
+
 #讀取檔案
 mat = scipy.io.loadmat('feature_dataset_heavy.mat')
 feature_dataset = mat['feature_dataset']            #此原數據之輸入要求為樣本*特徵
@@ -106,27 +121,27 @@ feature_dataset = mat['feature_dataset']            #此原數據之輸入要求
 mat = scipy.io.loadmat('feature_dataset_top30.mat')
 
 feature_dataset = mat['Data']
-
+'''
 
 
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
-skf = StratifiedKFold(n_splits=2, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
+skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 1000                   #基因演算法疊代次數
+num_generations = 300                   #基因演算法疊代次數
 num_parents_mating = 20                  #每代選多少個染色體進行交配
 sol_per_pop = 30                        #染色體數量
-num_params = 0                         #選擇的特徵數量
+num_params = 30                         #選擇的特徵數量
 num_genes = 8 + num_params              #求解的數量
 
 
 # 各個染色體範圍設置
 gene_space = [
-    {'low': 10, 'high': 400},  # 
+    {'low': 20, 'high': 200},  # 
     {'low': 1, 'high': 20},    # 
     {'low': 3, 'high': 10},    # 
     {'low': 1, 'high': 10},    #
@@ -179,7 +194,7 @@ print("最佳解的適應度值:", solution_fitness)
 
 
 #-------------------------------------------測試答案階段區域 two---------------------------------------
-test_data = feature_dataset[:, 1:]
+test_data = feature_dataset[:, solution[8:]]
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 all_mse = []
