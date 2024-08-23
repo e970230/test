@@ -45,7 +45,7 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
             return -np.inf,  # 返回一個極小值表示無效解決方案
 '''
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = feature_dataset[:, solution[8:]]                                 # 擷取原數據共num_params個特徵，
+    data = init_data[:, solution[8:]]                                 # 擷取原數據共num_params個特徵，
     #all_mse = []
     final_vr_answer = []
     # 創建 XGBRegressor 模型
@@ -194,7 +194,7 @@ print("最佳解的適應度值:", solution_fitness)
 
 
 #-------------------------------------------測試答案階段區域 two---------------------------------------
-test_data = feature_dataset[:, solution[8:]]
+test_data = init_data[:, solution[8:]]
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 all_mse = []
