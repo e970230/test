@@ -76,15 +76,20 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
         temporary_vr_answer = []  # 初始化為一個空列表，存儲每次的vr_answer
 
         for er_label, verify_mse in verify_mse.items():
+            '''
             if verify_mse >= er_label:
                 vr_answer = 1000
             else:
                 vr_answer = verify_mse / er_label * 100
-
+            '''
+            vr_answer = verify_mse / er_label * 100
             temporary_vr_answer.append(vr_answer)  # 使用列表的append方法將vr_answer追加到final_vr_answer中
     
-    final_vr_answer.append(np.sum(temporary_vr_answer))  # 最後將列表轉換為numpy數組
-    final_vr_answer = np.array(final_vr_answer)  # 最後將列表轉換為numpy數組
+    final_vr_answer = np.max(temporary_vr_answer)
+    #final_vr_answer.append(np.sum(temporary_vr_answer))  # 最後將列表轉換為numpy數組
+    #final_vr_answer = np.array(final_vr_answer)  # 最後將列表轉換為numpy數組
+    
+    
     #final_mse_mean = np.mean(all_mse, axis=0)       #將所有記錄下來的MSE值進行平均
     # 取負的MSE找其最大值
     return -final_vr_answer
@@ -141,14 +146,14 @@ num_genes = 8 + num_params              #求解的數量
 
 # 各個染色體範圍設置
 gene_space = [
-    {'low': 20, 'high': 200},  # 
-    {'low': 1, 'high': 20},    # 
-    {'low': 3, 'high': 10},    # 
-    {'low': 1, 'high': 10},    #
-    {'low': 0, 'high': 50},    #
-    {'low': 50, 'high': 100},    #
-    {'low': 50, 'high': 100},    #
-    {'low': 0, 'high': 100},    #
+    {'low': 20, 'high': 400},       # n_estimators
+    {'low': 1, 'high': 60},         # learning_rate
+    {'low': 3, 'high': 20},         # max_depth
+    {'low': 1, 'high': 10},         # min_child_weight
+    {'low': 0, 'high': 50},         # gamma
+    {'low': 50, 'high': 100},       # subsample
+    {'low': 50, 'high': 100},       # colsample_bytree
+    {'low': 0, 'high': 100},        # reg_alpha
 ]
 
 
