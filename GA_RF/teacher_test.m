@@ -105,8 +105,8 @@ end
 
 figure(3)
 hold on
-plot(test_time*10,answer_1(test_time,1),'Color','r')%畫出分數隨著疊代次數的走勢圖
-plot(test_time*10,answer_2(test_time,1),'Color','b')%畫出分數隨著疊代次數的走勢圖
+plot(test_time*10,answer_1(test_time,1),'Color','r','Marker','*')%畫出分數隨著疊代次數的走勢圖
+plot(test_time*10,answer_2(test_time,1),'Color','b','Marker','o')%畫出分數隨著疊代次數的走勢圖
 hold off
 title('最佳適性值走勢圖')
 legend('基因演算法尋找特徵','LTFRM找出之TOP30特徵')
@@ -115,8 +115,8 @@ ylabel('當次完整疊代最佳MSE值')
 
 figure(4)
 hold on
-plot(test_time*10,time_records_1,'Color','r')
-plot(test_time*10,time_records_2,'Color','b')
+plot(test_time*10,time_records_1,'Color','r','Marker','*')
+plot(test_time*10,time_records_2,'Color','b','Marker','o')
 hold off
 title('花費時間走勢圖')
 legend('基因演算法尋找特徵','LTFRM找出之TOP30特徵')
