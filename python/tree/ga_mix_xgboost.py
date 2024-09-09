@@ -45,9 +45,13 @@ def fitness_func_method_one(ga_instance, solution, solution_idx):
             return -np.inf,  # 返回一個極小值表示無效解決方案
 '''
 def fitness_func_method_two(ga_instance, solution, solution_idx):
-    data = init_data[:, solution[8:]]                                 # 擷取原數據共num_params個特徵，
-    #all_mse = []
-    final_vr_answer = []
+    #判斷選擇使用全部特徵還是從中選取特徵
+    if num_params == 0:     #判斷是否選用基因演算法抽取特徵
+        data = init_data    #不透過基因演算法選取特徵，則直接將整包data的所有特徵
+    else:
+        data = init_data[:, solution[9:]]   # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
+    all_mse = []
+    #final_vr_answer = []
     # 創建 XGBRegressor 模型
     model = xgb.XGBRegressor(n_estimators= solution[0],             #將第一個解作為樹的數量
                              learning_rate= (solution[1]*0.01),     #將第三個解作為學習率
@@ -56,7 +60,8 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
                              gamma = solution[4]*0.01,
                              subsample = solution[5]*0.01,
                              colsample_bytree = solution[6]*0.01,
-                             reg_alpha = solution[7]*0.01,
+                             reg_lambda = solution[7]*0.01,
+                             reg_alpha = solution[8]*0.01,
                              booster='gbtree',
                              random_state=42)
     for train_index, test_index in skf.split(data,label):
@@ -68,31 +73,32 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
         y_pred = model.predict(X_test)              #預測解答
 
         # 計算預測答案和原始標籤之MSE值
-        #mse = mean_squared_error(y_test, y_pred)    #計算MSE值
-        #all_mse.append(mse)                         #將當次MSE值記錄下來
-    
+        mse = mean_squared_error(y_test, y_pred)    #計算MSE值
+        all_mse.append(mse)                         #將當次MSE值記錄下來
+        '''
         verify_mse = {er_label: mean_squared_error(y_test[y_test == er_label], y_pred[y_test == er_label]) for er_label in unique_numbers}
 
         temporary_vr_answer = []  # 初始化為一個空列表，存儲每次的vr_answer
 
         for er_label, verify_mse in verify_mse.items():
-            '''
+            
             if verify_mse >= er_label:
                 vr_answer = 1000
             else:
                 vr_answer = verify_mse / er_label * 100
-            '''
+            
             vr_answer = verify_mse / er_label * 100
             temporary_vr_answer.append(vr_answer)  # 使用列表的append方法將vr_answer追加到final_vr_answer中
     
     final_vr_answer = np.max(temporary_vr_answer)
+    '''
     #final_vr_answer.append(np.sum(temporary_vr_answer))  # 最後將列表轉換為numpy數組
     #final_vr_answer = np.array(final_vr_answer)  # 最後將列表轉換為numpy數組
     
     
-    #final_mse_mean = np.mean(all_mse, axis=0)       #將所有記錄下來的MSE值進行平均
+    final_mse_mean = np.mean(all_mse, axis=0)       #將所有記錄下來的MSE值進行平均
     # 取負的MSE找其最大值
-    return -final_vr_answer
+    return -final_mse_mean
 
 #定義擷取特徵數量函數
 def generate_dynamic_gene_space(num_params,init_data):
@@ -117,7 +123,7 @@ def on_generation(ga_instance):
 
 
 #-------------------------------------------主要運行程式區域---------------------------------------
-
+'''
 #讀取檔案
 mat = scipy.io.loadmat('feature_dataset_heavy.mat')
 feature_dataset = mat['feature_dataset']            #此原數據之輸入要求為樣本*特徵
@@ -126,7 +132,7 @@ feature_dataset = mat['feature_dataset']            #此原數據之輸入要求
 mat = scipy.io.loadmat('feature_dataset_top30.mat')
 
 feature_dataset = mat['Data']
-'''
+
 
 
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
@@ -137,22 +143,23 @@ skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=None)     #設定sK
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 300                   #基因演算法疊代次數
+num_generations = 1000                   #基因演算法疊代次數
 num_parents_mating = 20                  #每代選多少個染色體進行交配
 sol_per_pop = 30                        #染色體數量
-num_params = 30                         #選擇的特徵數量
-num_genes = 8 + num_params              #求解的數量
+num_params = 0                         #選擇的特徵數量
+num_genes = 9 + num_params              #求解的數量
 
 
 # 各個染色體範圍設置
 gene_space = [
-    {'low': 20, 'high': 400},       # n_estimators
-    {'low': 1, 'high': 60},         # learning_rate
+    {'low': 20, 'high': 500},       # n_estimators
+    {'low': 1, 'high': 50},         # learning_rate
     {'low': 3, 'high': 20},         # max_depth
     {'low': 1, 'high': 10},         # min_child_weight
     {'low': 0, 'high': 50},         # gamma
     {'low': 50, 'high': 100},       # subsample
     {'low': 50, 'high': 100},       # colsample_bytree
+    {'low': 0, 'high': 100},        # reg_lambda
     {'low': 0, 'high': 100},        # reg_alpha
 ]
 
@@ -199,7 +206,11 @@ print("最佳解的適應度值:", solution_fitness)
 
 
 #-------------------------------------------測試答案階段區域 two---------------------------------------
-test_data = init_data[:, solution[8:]]
+#判斷選擇使用全部特徵還是從中選取特徵
+if num_params == 0:     #判斷是否選用基因演算法抽取特徵
+    test_data = init_data    #不透過基因演算法選取特徵，則直接將整包data的所有特徵
+else:
+    test_data = init_data[:, solution[9:]]   # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
 label = feature_dataset[:, 0]
 test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 all_mse = []
@@ -213,7 +224,8 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
                              gamma = solution[4]*0.01,
                              subsample = solution[5]*0.01,
                              colsample_bytree = solution[6]*0.01,
-                             reg_alpha = solution[7]*0.01,
+                             reg_lambda = solution[7]*0.01,
+                             reg_alpha = solution[8]*0.01,
                              booster='gbtree',
                              random_state=42)
         test_model.fit(X_train, y_train)
