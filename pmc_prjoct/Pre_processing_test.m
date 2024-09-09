@@ -5,7 +5,7 @@ close all
 %此為113-PMC螺桿系統動態監測分析與狀態估測模組開發的前程式開發檔案
 
 % 指定資料夾路徑
-folderPath = 'C:\Users\admin\Documents\GitHub\test\pmc_prjoct'; % 替換成你的資料夾路徑
+folderPath = 'C:\Users\林坪橙\Documents\GitHub\test\pmc_prjoct'; % 替換成你的資料夾路徑
 
 % 獲取資料夾中所有的 CSV 檔案
 matFiles = dir(fullfile(folderPath, '*.mat'));
@@ -113,23 +113,23 @@ final_data = postion_prcoss_data(answer)
 
 %--------------------------------------------------------------------------
 
-% order = 3;      %濾波器的階數，此值須小於移動窗口的長度
-% framelen = 193;  %移動窗口的長度(必須為奇數
-% 
-% sg_prcoss_data = sgolayfilt(prcoss_data,order,framelen);
-% [output]=diff_signal(prcoss_data,200,0.1);
-% 
-% 
-% 
-% figure(3)
-% x = 1:size(sg_prcoss_data,1);
-% plot(x,sg_prcoss_data)
-% title('sg濾波器處理後訊號')
-% xlabel('Time(sec)')
-% ylabel('mm')
-% figure(2)
-% x = 1:size(init_data{find_num,6},1);
-% plot(x,init_data{find_num,6})
+order = 3;      %濾波器的階數，此值須小於移動窗口的長度
+framelen = 193;  %移動窗口的長度(必須為奇數
+
+sg_prcoss_data = sgolayfilt(prcoss_data,order,framelen);
+[output]=diff_signal(prcoss_data,200,0.1);
+
+
+
+figure(3)
+x = 1:size(sg_prcoss_data,1);
+plot(x,sg_prcoss_data)
+title('sg濾波器處理後訊號')
+xlabel('Time(sec)')
+ylabel('mm')
+figure(2)
+x = 1:size(init_data{find_num,6},1);
+plot(x,init_data{find_num,6})
 
 
 
