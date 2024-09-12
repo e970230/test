@@ -144,7 +144,7 @@ unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來
 
 # 設定基因演算法參數
 num_generations = 1000                   #基因演算法疊代次數
-num_parents_mating = 20                  #每代選多少個染色體進行交配
+num_parents_mating = 15                  #每代選多少個染色體進行交配
 sol_per_pop = 30                        #染色體數量
 num_params = 0                         #選擇的特徵數量
 num_genes = 9 + num_params              #求解的數量
@@ -152,7 +152,7 @@ num_genes = 9 + num_params              #求解的數量
 
 # 各個染色體範圍設置
 gene_space = [
-    {'low': 20, 'high': 500},       # n_estimators
+    {'low': 400, 'high': 2000},       # n_estimators
     {'low': 1, 'high': 50},         # learning_rate
     {'low': 3, 'high': 20},         # max_depth
     {'low': 1, 'high': 10},         # min_child_weight
@@ -179,7 +179,7 @@ ga_instance = pygad.GA(
                        parent_selection_type="rank",                   #選擇染色體方式依據排名來選擇
                        crossover_type="single_point",                  #單點交配
                        mutation_type="random",                         #隨機突變
-                       mutation_probability=0.4,                       #突變率
+                       mutation_probability=0.3,                       #突變率
                        on_generation=on_generation,                    #每次疊代資訊顯示
                        save_solutions=False                            #儲存每次疊代解答之設定
 )

@@ -25,14 +25,15 @@ unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來
 
 final_vr_answer = np.empty((0, len(unique_numbers)))
 
-model = xgb.XGBRegressor(n_estimators= 47,             #將第一個解作為樹的數量
-                             learning_rate= 0.13,     #將第三個解作為學習率
-                             max_depth=8,                 #將第二個解作為樹的最大深度
-                             min_child_weight=4,
-                             gamma = 0.27,
-                             subsample = 0.99,
-                             colsample_bytree = 0.69,
-                             reg_alpha = 0.53,
+model = xgb.XGBRegressor(n_estimators= 1730,             #將第一個解作為樹的數量
+                             learning_rate= 0.20,     #將第三個解作為學習率
+                             max_depth=13,                 #將第二個解作為樹的最大深度
+                             min_child_weight=1,
+                             gamma = 0.02,
+                             subsample = 0.98,
+                             colsample_bytree = 0.99,
+                             reg_lambda = 0.05,
+                             reg_alpha = 0.35,
                              booster='gbtree',
                              random_state=42)
 for train_index, test_index in skf.split(data,label):

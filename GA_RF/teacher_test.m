@@ -6,7 +6,7 @@ close all
 
 %新增觀察每次最佳的超參數答案組合
 
-test_time = 3:1:15;
+test_time = 3:1:15; %測試疊代次數30~150次，所以輸入3~15，後續處理會自動*10
 
 %-------------------------原始數據透過基因演算法抽取特徵---------------------
 
@@ -49,8 +49,8 @@ for i_test = test_time
     % best_feature_inx: 由GA找出的最佳特徵的編號; 維度=1*指定的特徵數目(numFeats); 若不須GA挑選特徵則回傳"[]"
     
     elapsed_time = toc;
-    time_records_1 = [time_records_1; elapsed_time]; % 將每次的時間記錄到矩陣中
-    answer_1(i_test,:) = [best_score best_answer best_feature_inx];
+    time_records_1 = [time_records_1; elapsed_time];                    % 紀錄每次完整疊代後所花費時間
+    answer_1(i_test,:) = [best_score best_answer best_feature_inx];     % 紀錄每次完整疊代後的MSE值和隨機森林超參數組合解答跟選出的特徵index
 
 end
 
@@ -62,7 +62,7 @@ numFeats=0;   %欲由GA挑選的特徵數量
 lb_input=[50 5 5];     %欲優化的超參數的搜索範圍的下限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
 ub_input=[200 50 10];  %欲優化的超參數的搜索範圍的上限 (依序為RF的樹數目, 每棵樹最大的分枝次數, 葉節點最小樣本數)
 
-%讀取測試資料 (原始完整的特徵資料集)
+%讀取測試資料 (LTFRM選出之TOP30的特徵資料集)
 feature_dataset=load("feature_dataset_top30.mat");
 Data=feature_dataset.feature_top30.dataset;
 FeatureData=Data(:,2:end);    %特徵資料集; 維度=sample數*特徵數
@@ -94,9 +94,9 @@ for i_test = test_time
     % verify: 以最佳超參數及特徵重複多次建立RF, 對驗證集的預測值的fitness(MSE值)的平均值, 變異數, 標準差
     % best_feature_inx: 由GA找出的最佳特徵的編號; 維度=1*指定的特徵數目(numFeats); 若不須GA挑選特徵則回傳"[]"
     
-    elapsed_time = toc;
-    time_records_2 = [time_records_2; elapsed_time]; % 將每次的時間記錄到矩陣中
-    answer_2(i_test,:) = [best_score best_answer best_feature_inx];
+    elapsed_time = toc; 
+    time_records_2 = [time_records_2; elapsed_time];                    % 紀錄每次完整疊代後所花費時間
+    answer_2(i_test,:) = [best_score best_answer best_feature_inx];     % 紀錄每次完整疊代後的MSE值和隨機森林超參數組合解答
 
 end
 
