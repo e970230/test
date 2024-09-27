@@ -147,7 +147,7 @@ matrix = np.array([list(map(float, line.split())) for line in lines])
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
-skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=None)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
+skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
@@ -221,7 +221,7 @@ if num_params == 0:     #判斷是否選用基因演算法抽取特徵
 else:
     test_data = init_data[:, solution[9:]]   # 擷取原數據共num_params個特徵，維度為(總數具樣本數*欲選擇特徵數量)
 label = feature_dataset[:, 0]
-test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
+test_skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 all_mse = []
 for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label):
         X_train, X_test = test_data[train_index_test_ver], test_data[test_index_test_ver]
