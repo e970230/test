@@ -42,7 +42,6 @@ while t<Max_iter
     
     % a2 linearly dicreases from -1 to -2 to calculate t in Eq. (3.12)
     a2=-1+t*((-1)/Max_iter);
-    
     % Update the Position of search agents 
     for i=1:size(Positions,1)
         r1=rand(); % r1 is a random number in [0,1]
@@ -84,6 +83,7 @@ while t<Max_iter
    
     t=t+1;
     Convergence_curve(t)=Leader_score;
+    disp("     ")
     disp("當前疊代次數 " + num2str(t) + " 當前最佳適性值 : " + num2str(Leader_score))
     % [t Leader_score]
 end

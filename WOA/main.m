@@ -22,12 +22,12 @@ clear
 close all
 
 load ("PSO_exercise_dataset.mat")
-SearchAgents_no=100; % Number of search agents
+SearchAgents_no=50; % Number of search agents
 
 
 Max_iteration=500; % Maximum numbef of iterations
 
-
+rng(0)
 
 fobj =@(x) CoFnc(y3test(x(1),x(2),t,x(3),x(4)),y);  %costfunction
 
@@ -39,7 +39,6 @@ dim = 4;            %costfunction需要尋找的解答數量
 
 
 [Best_score,Best_pos,WOA_cg_curve]=WOA_self_ver_01(SearchAgents_no,Max_iteration,lb,ub,dim,fobj);
-
 
 
 
@@ -61,6 +60,14 @@ hold off
 xlabel("time")
 ylabel("y")
 legend('預測解','原始最佳解')
+
+%% 繪製有關A的圖
+
+figure(3)
+plot(1:Max_iteration,(test_A))
+title('論文中a隨著疊代次數變化過程')
+xlabel('Iteration')
+ylabel("當次疊帶a的值")
 
 
 

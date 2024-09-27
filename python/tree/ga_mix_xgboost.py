@@ -133,6 +133,15 @@ mat = scipy.io.loadmat('feature_dataset_top30.mat')
 
 feature_dataset = mat['Data']
 
+'''
+# 讀取文件
+with open('PCA_test_data.txt', 'r') as file:
+    lines = file.readlines()
+
+# 將每一行轉換為數字並存入矩陣
+matrix = np.array([list(map(float, line.split())) for line in lines])
+'''
+
 
 
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
@@ -152,7 +161,7 @@ num_genes = 9 + num_params              #求解的數量
 
 # 各個染色體範圍設置
 gene_space = [
-    {'low': 400, 'high': 2000},       # n_estimators
+    {'low': 100, 'high': 3000},       # n_estimators
     {'low': 1, 'high': 50},         # learning_rate
     {'low': 3, 'high': 20},         # max_depth
     {'low': 1, 'high': 10},         # min_child_weight
