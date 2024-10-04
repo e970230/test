@@ -29,10 +29,10 @@ VarMax = 10;        % Upper Bound of Decision Variables
 
 %% IWO Parameters
 
-MaxIt = 2000;    % Maximum Number of Iterations
+MaxIt = 1000;    % Maximum Number of Iterations
 
 nPop0 = 10;     % Initial Population Size
-nPop = 40;      % Maximum Population Size
+nPop = 100;      % Maximum Population Size
 
 Smin = 0;       % Minimum Number of Seeds
 Smax = 5;       % Maximum Number of Seeds

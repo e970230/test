@@ -19,27 +19,32 @@ start_time = time.time()
 init_data = feature_dataset[:, 1:]  # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0列
 
+init_data = init_data.astype(np.float64)
+label = label.astype(np.float64)
+
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
 # 2024/09/12註記若優化超參數使用到7個是極限，超過會太多
 
 param_random = {
-    'n_estimators': np.arange(10,1001,20),
-    'learning_rate': np.linspace(0.01, 0.5, 20),
+    'n_estimators': np.arange(500,1501,50),
+    'learning_rate': np.linspace(0.01, 0.5, 5),
     'max_depth': np.arange(1,20),
     'min_child_weight': np.arange(1,10),
-    'subsample': np.arange(0.5,1.01,0.1),
-    'colsample_bytree': np.arange(0.5,1.01,0.1),
-    'reg_alpha': np.linspace(0, 1, 20),
+    'gamma': np.linspace(0.5,1.,10),
+    'subsample': np.linspace(0.5,1.,10),
+    'colsample_bytree': np.linspace(0.5,1.,10),
+    'reg_alpha': np.linspace(0, 1, 10),
+    'reg_lambda': np.linspace(0, 1, 10),
 }
 
 
-# 创建 XGBRegressor 模型
+# 創建 XGBRegressor 模型
 xgb_model = xgb.XGBRegressor(booster='gbtree', random_state=42)
 
-# 创建 GridSearchCV 对象
+#  創建 RandomizedSearchCV
 random_search = RandomizedSearchCV(xgb_model, param_random, 
-                           n_iter=2000,scoring='neg_mean_squared_error', cv=skf, verbose=1, n_jobs=1)
+                           n_iter=2000,scoring='neg_mean_squared_error', cv=skf, verbose=1, n_jobs=-1)
 
 random_search.fit(init_data, label)
 
