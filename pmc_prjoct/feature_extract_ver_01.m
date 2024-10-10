@@ -28,6 +28,10 @@ tolerance=5;
 spindle_fs=F/(12*60);   
 
 
+BD_delta_F10000 = 20;
+BD_delta_F16000 = 30;
+
+
 for k = 1:3 %有3個模型，故這裡迴圈設定1~3
 
     %數字控制模型
@@ -47,9 +51,9 @@ for k = 1:3 %有3個模型，故這裡迴圈設定1~3
     
     % BD=band energy
     if F==10000
-        BD_delta=20;
+        BD_delta=BD_delta_F10000;
     elseif F==16000
-        BD_delta=30;
+        BD_delta=BD_delta_F16000;
     end
     
     

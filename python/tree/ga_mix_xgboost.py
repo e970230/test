@@ -147,23 +147,23 @@ matrix = np.array([list(map(float, line.split())) for line in lines])
 init_data = feature_dataset[:, 1:]      # 擷取原數據的特徵，第0列為標籤所以特徵從第1列開始擷取
 label = feature_dataset[:, 0]           # 擷取原數據的標籤，為原數據的第0列
 
-skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)     #設定sKfold交叉驗證模組(拆分的組數，再拆分前是否打亂，隨機性設定)
 
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
 num_generations = 1000                   #基因演算法疊代次數
-num_parents_mating = 15                  #每代選多少個染色體進行交配
-sol_per_pop = 30                        #染色體數量
+num_parents_mating = 25                  #每代選多少個染色體進行交配
+sol_per_pop = 50                        #染色體數量
 num_params = 0                         #選擇的特徵數量
 num_genes = 9 + num_params              #求解的數量
 
 
 # 各個染色體範圍設置
 gene_space = [
-    {'low': 100, 'high': 3000},       # n_estimators
+    {'low': 500, 'high': 1500},       # n_estimators
     {'low': 1, 'high': 50},         # learning_rate
-    {'low': 3, 'high': 20},         # max_depth
+    {'low': 1, 'high': 20},         # max_depth
     {'low': 1, 'high': 10},         # min_child_weight
     {'low': 0, 'high': 50},         # gamma
     {'low': 50, 'high': 100},       # subsample
@@ -236,7 +236,9 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
                              reg_lambda = solution[7]*0.01,
                              reg_alpha = solution[8]*0.01,
                              booster='gbtree',
-                             random_state=42)
+                             random_state=42,
+                             tree_method='hist', 
+                             device='cuda')
         test_model.fit(X_train, y_train)
         y_pred = test_model.predict(X_test)
         # 計算預測答案和原始標籤之MSE值

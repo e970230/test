@@ -24,7 +24,7 @@ label = feature_dataset[:, 0]  # 擷取原數據的標籤，為原數據的第0�
 skf = StratifiedKFold(n_splits=4, shuffle=True, random_state=None)
 
 param_grid = {
-    'n_estimators': np.arange(1000,2001,50),
+    'n_estimators': np.arange(500,1501,50),
     'learning_rate': np.linspace(0.01, 0.5, 5),
     'max_depth': np.arange(1,20),
     'min_child_weight': np.arange(1,10),

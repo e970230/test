@@ -35,7 +35,9 @@ model = xgb.XGBRegressor(n_estimators= 1730,             #將第一個解作為�
                              reg_lambda = 0.05,
                              reg_alpha = 0.35,
                              booster='gbtree',
-                             random_state=42)
+                             random_state=42,
+                             tree_method='gpu_hist', 
+                             max_bin=256)
 for train_index, test_index in skf.split(data,label):
     X_train, X_test = data[train_index], data[test_index]               #將數據拆分成訓練數據和測試數據，並透過Kfold交叉驗證方式進行區分
     y_train, y_test = label[train_index], label[test_index]             #將標籤拆分成訓練標籤和測試標籤，並透過Kfold交叉驗證方式進行區分
