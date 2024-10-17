@@ -27,9 +27,9 @@ skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 # 2024/09/12註記若優化超參數使用到7個是極限，超過會太多
 
 param_random = {
-    'n_estimators': np.arange(500,1501,50),
+    'n_estimators': np.arange(500,2001,50),
     'learning_rate': np.linspace(0.01, 0.5, 5),
-    'max_depth': np.arange(1,20),
+    'max_depth': np.arange(1,10),
     'min_child_weight': np.arange(1,10),
     'gamma': np.linspace(0.5,1.,10),
     'subsample': np.linspace(0.5,1.,10),
