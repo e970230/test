@@ -92,7 +92,7 @@ unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來
 
 # 設定基因演算法參數
 num_generations = 1000                   #基因演算法疊代次數
-num_parents_mating = 25                  #每代選多少個染色體進行交配
+num_parents_mating = 40                  #每代選多少個染色體進行交配
 sol_per_pop = 50                        #染色體數量
 num_params = 50                         #選擇的特徵數量
 num_genes = 9 + num_params              #求解的數量
