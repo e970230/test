@@ -1,0 +1,17 @@
+Condition_1: source==> 1_A
+			 target==> 1_B
+
+Condition_2:  source==> 1_A
+			 target==> 1_C
+
+Condition_3:  source==> 2_A
+			 target==> 2_B
+
+Condition_4:  source==> 2_A
+			 target==> 2_C
+
+Condition_5:  source==> 3_A
+			 target==> 3_B
+
+Condition_6:  source==> 3_A
+			 target==> 3_C

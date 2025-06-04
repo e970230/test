@@ -1,0 +1,8 @@
+每個資料夾裡都有三個同名檔案，分別是source_test、source_train、target_test_data，
+所有資料夾分別代表情況1~情況10，而對應情況所代表的詳細資訊請參考ppt裡10個測試，他們是相互對應的
+
+假設打開Condition_3_ex的資料夾，那根據ppt的實驗表可得知:
+
+source_test 來自 50% normal_test_1_A_feature_extraction.csv
+source_train 來自 50% normal_test_1_A_feature_extraction.csv
+target_test_data 來自 20% normal_test_2_F_feature_extraction.csv + 100% abnormal_test_2_F_feature_extraction.csv

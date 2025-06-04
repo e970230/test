@@ -1,0 +1,15 @@
+此資料夾皆為gamma設定在0.1時，TCA後的數據
+此資料夾下有複數個資料夾，這些資料夾裡都有這相同名稱的4個檔案 : 
+tca_source_abnormal_data.csv
+tca_source_normal_data.csv
+tca_target_abnormal_data.csv
+tca_target_normal_data.csv
+
+這四個檔案請依據ppt中gamma設定為0.1的ppt進行對照，此處分別代表情況1~情況10，而對應情況所代表的詳細資訊請參考ppt裡10個測試，他們是相互對應的
+
+假設打開Condition_5_ex的資料夾，那根據ppt的實驗表可得知:
+
+tca_source_abnormal_data.csv 	來源於	abnormal_test_1_A_feature_extraction.csv
+tca_source_normal_data.csv 	來源於	normal_test_1_A_feature_extraction.csv
+tca_target_abnormal_data.csv 	來源於	abnormal_test_3_G_feature_extraction.csv
+tca_target_normal_data.csv 	來源於	normal_test_3_G_feature_extraction.csv

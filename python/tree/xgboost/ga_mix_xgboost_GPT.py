@@ -39,7 +39,8 @@ def fitness_func_method_two(ga_instance, solution, solution_idx):
                              reg_lambda = solution[7]*0.01,
                              reg_alpha = solution[8]*0.01,
                              booster='gbtree',
-                             random_state=42)
+                             random_state=42,
+                             n_jobs = -1)
     def train_and_evaluate(train_idx, test_idx):
         X_train, X_test = data[train_idx], data[test_idx]
         y_train, y_test = label[train_idx], label[test_idx]
@@ -75,7 +76,7 @@ def on_generation(ga_instance):
 
 
 #-------------------------------------------主要運行程式區域---------------------------------------
-'''
+
 #讀取檔案
 mat = scipy.io.loadmat('feature_dataset_heavy.mat')
 feature_dataset = mat['feature_dataset']            #此原數據之輸入要求為樣本*特徵
@@ -84,7 +85,7 @@ feature_dataset = mat['feature_dataset']            #此原數據之輸入要求
 mat = scipy.io.loadmat('feature_dataset_top30.mat')
 
 feature_dataset = mat['Data']
-
+'''
 
 
 
@@ -96,10 +97,10 @@ skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)     #設定sKfo
 unique_numbers = np.unique(label)       #將標籤中不一樣處給區別出來，以後續處理使用
 
 # 設定基因演算法參數
-num_generations = 1000                   #基因演算法疊代次數
-num_parents_mating = 40                  #每代選多少個染色體進行交配
-sol_per_pop = 50                        #染色體數量
-num_params = 0                         #選擇的特徵數量
+num_generations = 10                   #基因演算法疊代次數
+num_parents_mating = 4                  #每代選多少個染色體進行交配
+sol_per_pop = 5                        #染色體數量
+num_params = 50                         #選擇的特徵數量
 num_genes = 9 + num_params              #求解的數量
 
 
@@ -181,9 +182,7 @@ for train_index_test_ver, test_index_test_ver in test_skf.split(test_data,label)
                              reg_lambda = solution[7]*0.01,
                              reg_alpha = solution[8]*0.01,
                              booster='gbtree',
-                             random_state=42,
-                             tree_method='hist', 
-                             device='cuda')
+                             random_state=42)
         test_model.fit(X_train, y_train)
         y_pred = test_model.predict(X_test)
         # 計算預測答案和原始標籤之MSE值
